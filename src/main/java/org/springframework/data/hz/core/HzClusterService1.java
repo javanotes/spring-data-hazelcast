@@ -1,6 +1,6 @@
 /* ============================================================================
 *
-* FILE: PartitionMigrationCallback.java
+* FILE: HzClusterService1.java
 *
 The MIT License (MIT)
 
@@ -26,22 +26,8 @@ SOFTWARE.
 *
 * ============================================================================
 */
-package org.springframework.data.hz;
+package org.springframework.data.hz.core;
 
-import java.io.Serializable;
+public class HzClusterService1 {
 
-import com.hazelcast.map.EntryProcessor;
-/**
- * Partition migration callback on all entries of a given map
- *
- * @param <V>
- */
-public interface PartitionMigrationCallback<V> extends EntryProcessor<Serializable, V>{
-
-  /**
-   * Gets the Map for which migrated elements will have a callback
-   * @return
-   */
-  String keyspace();
-  
 }
