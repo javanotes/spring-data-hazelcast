@@ -26,7 +26,7 @@ SOFTWARE.
 *
 * ============================================================================
 */
-package org.springframework.data.hz;
+package com.uthtechnologies.springdata.hz;
 
 import java.io.Serializable;
 

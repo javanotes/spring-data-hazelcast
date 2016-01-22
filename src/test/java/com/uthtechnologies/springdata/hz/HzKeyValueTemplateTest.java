@@ -11,7 +11,7 @@
 *
 * ============================================================================
 */
-package org.springframework.data.hz;
+package com.uthtechnologies.springdata.hz;
 
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.nullValue;
@@ -36,6 +36,8 @@ import org.springframework.data.keyvalue.annotation.KeySpace;
 import org.springframework.data.keyvalue.core.KeyValueTemplate;
 import org.springframework.data.keyvalue.core.query.KeyValueQuery;
 import org.springframework.util.ObjectUtils;
+
+import com.uthtechnologies.springdata.hz.HazelcastKeyValueAdapter;
 
 public class HzKeyValueTemplateTest {
 

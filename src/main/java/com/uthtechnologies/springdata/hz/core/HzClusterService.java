@@ -1,4 +1,4 @@
-package org.springframework.data.hz.core;
+package com.uthtechnologies.springdata.hz.core;
 /* ============================================================================
 *
 * FILE: HzClusterService.java
@@ -30,9 +30,9 @@ SOFTWARE.
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Observable;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -42,7 +42,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.data.hz.PartitionMigrationCallback;
 import org.springframework.util.StringUtils;
 
 import com.hazelcast.config.ConfigurationException;
@@ -53,6 +52,8 @@ import com.hazelcast.core.MembershipListener;
 import com.hazelcast.core.MigrationEvent;
 import com.hazelcast.core.MigrationListener;
 import com.hazelcast.map.listener.MapListener;
+import com.uthtechnologies.springdata.hz.AbstractMembershipEventObserver;
+import com.uthtechnologies.springdata.hz.PartitionMigrationCallback;
 
 /**
  * This is the class responsible for maintaining the peer to peer clustering using Hazelcast. 
@@ -113,64 +114,27 @@ public final class HzClusterService {
 	 * @author esutdal
 	 *
 	 */
-	private class InstanceListener implements MembershipListener{
+	private class InstanceListener extends Observable implements MembershipListener{
 
 		@Override
 		public void memberRemoved(final MembershipEvent event) {
 			
-								
-			worker.execute(new Runnable() {
-				
-				@Override
-				public void run() {
-										
-					if(plannedShutDownRecvd.isEmpty()){
-						log.debug("Detected forced shutdown of member: " + event.getMember().toString());
-						
-						//This is a force kill of instance.
-						//so do need to bring up another instance
-						//this code can be used only if we are using a single node with multiple jvms
-						//ideally the instances will reside on different nodes. there we would need
-						//manual intervention or monitor scripts to bring up a new instance
-												
-						//cluster.tryRestartMember(event.getMember());
-						
-					}
-					else{
-						log.debug("Detected planned shutdown of member: " + event.getMember().toString());
-						synchronized(plannedShutDownRecvd){
-							plannedShutDownRecvd.remove();
-						}
-						//this else block should be reached by only one component, the one which successfully deques
-						//this is a planned shutdown. do not bring up instance
-						//but we don't know whether the primary was the victim!
-						//so try to run fail-over
-						
-						//do nothing
-					}
-					
-				}
-			});
+			setChanged();
+			notifyObservers(event);
+			
 			
 		}
 		
 		@Override
 		public void memberAdded(final MembershipEvent event) {
-			
-								
-			worker.execute(new Runnable() {
-				
-				@Override
-				public void run() {
-					log.info("Detected startup of member: " + event.getMember());
-					
-				}
-			});
+		  setChanged();
+      notifyObservers(event);
 		}
 
 		@Override
-		public void memberAttributeChanged(MemberAttributeEvent arg0) {
-			
+		public void memberAttributeChanged(MemberAttributeEvent event) {
+		  setChanged();
+      notifyObservers(event);
 		}
 		
 	}
@@ -198,7 +162,6 @@ public final class HzClusterService {
 	  else
       throw new IllegalAccessException("PartitionMigrationListener cannot be added after Hazelcast service has been started");
 	}
-	private final LinkedList<Integer> plannedShutDownRecvd = new LinkedList<Integer>();
 	/**
 	 * 
 	 * @param keyspace
@@ -209,9 +172,10 @@ public final class HzClusterService {
   {
 	  hzInstance.addLocalEntryListener(keyspace.toString(), listener);
   }
+	private final InstanceListener instanceListener = new InstanceListener();
 	private void init()
 	{
-	  hzInstance.init(new InstanceListener());
+	  hzInstance.init(instanceListener);
 	  
     hzInstance.addMigrationListener(new MigrationListener() {
       
@@ -343,6 +307,11 @@ public final class HzClusterService {
 
   public Object removeNow(Serializable id, String string) {
     return hzInstance.removeNow(id, string);
+    
+  }
+
+  public void addInstanceListenerObserver(AbstractMembershipEventObserver observer) {
+    instanceListener.addObserver(observer);      
     
   }
 	

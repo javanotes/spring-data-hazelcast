@@ -1,4 +1,4 @@
-package org.springframework.data.hz.core;
+package com.uthtechnologies.springdata.hz.core;
 /* ============================================================================
 *
 * FILE: HzInstanceProxy.java

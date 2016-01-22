@@ -1,6 +1,6 @@
 /* ============================================================================
 *
-* FILE: HzClusterService1.java
+* FILE: AbstractMembershipEventObserver.java
 *
 The MIT License (MIT)
 
@@ -26,8 +26,36 @@ SOFTWARE.
 *
 * ============================================================================
 */
-package org.springframework.data.hz.core;
+package com.uthtechnologies.springdata.hz;
 
-public class HzClusterService1 {
+import java.util.Observable;
+import java.util.Observer;
+
+import com.hazelcast.core.MemberAttributeEvent;
+import com.hazelcast.core.MembershipEvent;
+
+public abstract class AbstractMembershipEventObserver implements Observer{
+
+  @Override
+  public final void update(Observable arg0, Object arg1) {
+    System.err.println("WARNING: AbstractMembershipEventObserver.update() TODO");
+    if(arg1 instanceof MembershipEvent)
+    {
+      //TODO: create callbacks
+      MembershipEvent me = (MembershipEvent) arg1;
+      switch(me.getEventType())
+      {
+        case MembershipEvent.MEMBER_ADDED:
+          break;
+        case MembershipEvent.MEMBER_REMOVED:
+          break;
+        case MembershipEvent.MEMBER_ATTRIBUTE_CHANGED:
+          MemberAttributeEvent ma = (MemberAttributeEvent) arg1;
+          break;
+          default: break;
+      }
+    }
+    
+  }
 
 }

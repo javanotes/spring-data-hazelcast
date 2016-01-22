@@ -26,17 +26,18 @@ SOFTWARE.
 *
 * ============================================================================
 */
-package org.springframework.data.hz;
+package com.uthtechnologies.springdata.hz;
 
 import java.io.Serializable;
 import java.util.Iterator;
 import java.util.Map.Entry;
 
-import org.springframework.data.hz.core.HzClusterService;
 import org.springframework.data.keyvalue.core.AbstractKeyValueAdapter;
 import org.springframework.data.keyvalue.core.ForwardingCloseableIterator;
 import org.springframework.data.util.CloseableIterator;
 import org.springframework.util.Assert;
+
+import com.uthtechnologies.springdata.hz.core.HzClusterService;
 /**
  * 
  */
@@ -76,6 +77,17 @@ public class HazelcastKeyValueAdapter extends AbstractKeyValueAdapter {
   public <V> void addLocalKeyspaceListener(LocalPutMapEntryCallback<V> callback)
   {
     hz.addLocalEntryListener(callback.keyspace(), callback);
+  }
+  /**
+   * Add a lifecycle listener to receive Hazelcast membership event callbacks. 
+   * @param observer
+   * @throws IllegalAccessException if added after service is already started
+   */
+  public void addMembershipObserver(AbstractMembershipEventObserver observer) throws IllegalAccessException
+  {
+    if(hz.isStarted())
+      throw new IllegalAccessException("MembershipEventObserver cannot be added after Hazelcast service has been started");
+    hz.addInstanceListenerObserver(observer);
   }
   /**
    * Add a partition migration listener on the given map. Migration listeners have to be

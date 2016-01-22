@@ -11,7 +11,7 @@
 *
 * ============================================================================
 */
-package org.springframework.data.hz;
+package com.uthtechnologies.springdata.hz;
 
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
@@ -24,9 +24,10 @@ import java.util.Map;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.springframework.data.hz.HazelcastKeyValueAdapter;
 import org.springframework.data.util.CloseableIterator;
 import org.springframework.util.ObjectUtils;
+
+import com.uthtechnologies.springdata.hz.HazelcastKeyValueAdapter;
 
 public class HzKeyValueAdapterTest {
   private static final String COLLECTION_1 = "collection-1";
