@@ -26,7 +26,7 @@ SOFTWARE.
 *
 * ============================================================================
 */
-package com.uthtechnologies.springdata.hz;
+package com.uthtechnologies.springdata.keyval.handlers;
 
 import java.io.Serializable;
 

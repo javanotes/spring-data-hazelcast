@@ -1,6 +1,6 @@
 /* ============================================================================
 *
-* FILE: HzClusterService1.java
+* FILE: PartitionMigrationCallback.java
 *
 The MIT License (MIT)
 
@@ -23,11 +23,26 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
 *
 * ============================================================================
 */
-package com.uthtechnologies.springdata.hz.core;
+package com.uthtechnologies.springdata.keyval.handlers;
 
-public class HzClusterService1 {
+import java.io.Serializable;
 
+import com.hazelcast.map.listener.EntryAddedListener;
+import com.hazelcast.map.listener.EntryUpdatedListener;
+/**
+ * Local map entry listener on entry addition and updation
+ * @param <V>
+ */
+public interface LocalPutMapEntryCallback<V> extends EntryAddedListener<Serializable, V>, EntryUpdatedListener<Serializable, V>{
+
+  /**
+   * Gets the Map for which migrated elements will have a callback
+   * @return
+   */
+  String keyspace();
+  
 }

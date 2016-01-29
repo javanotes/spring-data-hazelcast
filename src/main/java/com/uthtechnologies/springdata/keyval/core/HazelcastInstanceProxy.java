@@ -1,4 +1,4 @@
-package com.uthtechnologies.springdata.hz.core;
+package com.uthtechnologies.springdata.keyval.core;
 /* ============================================================================
 *
 * FILE: HzInstanceProxy.java
@@ -28,14 +28,23 @@ SOFTWARE.
 * ============================================================================
 */
 import java.io.FileNotFoundException;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.hazelcast.config.ClasspathXmlConfig;
 import com.hazelcast.config.Config;
 import com.hazelcast.config.ConfigurationException;
+import com.hazelcast.config.EvictionPolicy;
+import com.hazelcast.config.InMemoryFormat;
+import com.hazelcast.config.MapConfig;
+import com.hazelcast.config.MaxSizeConfig;
+import com.hazelcast.config.MaxSizeConfig.MaxSizePolicy;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.ICondition;
@@ -47,6 +56,8 @@ import com.hazelcast.core.Member;
 import com.hazelcast.core.MembershipListener;
 import com.hazelcast.core.MigrationListener;
 import com.hazelcast.map.listener.MapListener;
+import com.uthtechnologies.springdata.keyval.annotation.HzMapConfig;
+import com.uthtechnologies.springdata.keyval.util.EntityFinder;
 
 /**
  * Class to proxy a Hazelcast cluster member. <p><b>Note:</b>
@@ -55,7 +66,7 @@ import com.hazelcast.map.listener.MapListener;
  * @author esutdal
  *
  */
-class HzInstanceProxy {
+class HazelcastInstanceProxy {
 	
 	/*
 	 * The broadcast address for an IPv4 host can be obtained by performing a bitwise OR operation 
@@ -65,6 +76,7 @@ class HzInstanceProxy {
 	   which has the subnet mask 255.240.0.0, the broadcast address is 172.16.0.0 | 0.15.255.255 = 172.31.255.255.
 	 */
 		
+  private static final Logger log = LoggerFactory.getLogger(HazelcastInstanceProxy.class);
 	ILock getLock(String name)
 	{
 		if(isRunning())
@@ -101,18 +113,46 @@ class HzInstanceProxy {
 		return false;
 	}
 	private ILock clusterSyncLock;	
+	
+	private static void addMapConfigs(Config hzConfig, Collection<Class<?>> entityClasses)
+	{
+	  for(Class<?> c : entityClasses)
+	  {
+	    HzMapConfig hc = c.getAnnotation(HzMapConfig.class);
+	    MapConfig mapC = new MapConfig(hc.name());
+	    mapC.setAsyncBackupCount(hc.asyncBackupCount());
+	    mapC.setBackupCount(hc.backupCount());
+	    mapC.setEvictionPercentage(hc.evictPercentage());
+	    mapC.setEvictionPolicy(EvictionPolicy.valueOf(hc.evictPolicy()));
+	    mapC.setInMemoryFormat(InMemoryFormat.valueOf(hc.inMemoryFormat()));
+	    mapC.setMaxIdleSeconds(hc.idleSeconds());
+	    mapC.setMergePolicy(hc.evictPolicy());
+	    mapC.setMinEvictionCheckMillis(hc.evictCheckMillis());
+	    mapC.setTimeToLiveSeconds(hc.ttlSeconds());
+	    mapC.setMaxSizeConfig(new MaxSizeConfig(hc.maxSizePerNode(), MaxSizePolicy.PER_NODE));
+	    
+	    hzConfig.getMapConfigs().put(mapC.getName(), mapC);
+	  }
+	}
 	/**
 	 * 
 	 * @throws FileNotFoundException
 	 * @throws ConfigurationException 
 	 */
-	private HzInstanceProxy(Config hzConfig) {
+	private HazelcastInstanceProxy(Config hzConfig, String entityScanPath) {
 		
     String memberName = System.getProperty("datagrid.instance.id", "datagrid.instance.id");
-    
     hzConfig.getMemberAttributeConfig().setStringAttribute("datagrid.instance.id", memberName);
     
-    hazelcast = Hazelcast.newHazelcastInstance(hzConfig);
+    try {
+      addMapConfigs(hzConfig, EntityFinder.findEntityClasses(entityScanPath));
+    } catch (Exception e) {
+      throw new ExceptionInInitializerError(e);
+    }
+    
+    hzConfig.setInstanceName(memberName);
+    hzConfig.setProperty("hazelcast.shutdownhook.enabled", "false");
+    hazelcast = Hazelcast.getOrCreateHazelcastInstance(hzConfig);
     Set<Member> members = hazelcast.getCluster().getMembers();
     
     int memberIdCnt = 0;
@@ -124,18 +164,24 @@ class HzInstanceProxy {
     		memberIdCnt++;
     	}
     	if(memberIdCnt >= 2)
-    		throw new ExceptionInInitializerError("Instance ["+memberName+"] already present in cluster");
+    		log.warn("*** Instance ["+memberName+"] already present in cluster. Joined the same instance ***");
     }
 				
 	}
-	public HzInstanceProxy()
+	HazelcastInstance getHazelcast() {
+    return hazelcast;
+  }
+
+
+  public HazelcastInstanceProxy(String entityBasePkg)
 	{
-	  this(new Config());
+	  this(new Config(), entityBasePkg);
 	}
-	public HzInstanceProxy(String configFile)
+	public HazelcastInstanceProxy(String configFile, String entityBasePkg)
 	{
-	  this(new ClasspathXmlConfig(configFile));
+	  this(new ClasspathXmlConfig(configFile), entityBasePkg);
 	}
+	
 	/**
 	 * Adds a migration listener
 	 * @param listener
@@ -183,9 +229,10 @@ class HzInstanceProxy {
 	}
 	
 			
-	public void stop(String message){
-		if(hazelcast != null){
+	public void stop(){
+		if(isRunning()){
 			hazelcast.getLifecycleService().shutdown();
+			log.info("** Stopped Hazelcast instance **");
 		}
 		
 		

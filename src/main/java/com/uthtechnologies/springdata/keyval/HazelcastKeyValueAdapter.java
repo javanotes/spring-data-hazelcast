@@ -26,7 +26,7 @@ SOFTWARE.
 *
 * ============================================================================
 */
-package com.uthtechnologies.springdata.hz;
+package com.uthtechnologies.springdata.keyval;
 
 import java.io.Serializable;
 import java.util.Iterator;
@@ -37,35 +37,33 @@ import org.springframework.data.keyvalue.core.ForwardingCloseableIterator;
 import org.springframework.data.util.CloseableIterator;
 import org.springframework.util.Assert;
 
-import com.uthtechnologies.springdata.hz.core.HzClusterService;
+import com.uthtechnologies.springdata.keyval.core.HazelcastClusterServiceBean;
+import com.uthtechnologies.springdata.keyval.handlers.LocalPutMapEntryCallback;
+import com.uthtechnologies.springdata.keyval.handlers.MembershipEventObserver;
+import com.uthtechnologies.springdata.keyval.handlers.PartitionMigrationCallback;
 /**
  * 
  */
 public class HazelcastKeyValueAdapter extends AbstractKeyValueAdapter {
-
-  private final HzClusterService hz;
+  
+  private final HazelcastClusterServiceBean hz;
  /**
   * 
-  * @param joinImmediate
+  * @param joinImmediate - if start listening immediately
   * @param xmlCfg
   */
-  public HazelcastKeyValueAdapter(boolean joinImmediate, String xmlCfg) {
-    hz = HzClusterService.instance(xmlCfg);
+  public HazelcastKeyValueAdapter(boolean joinImmediate, HazelcastClusterServiceBean hz) {
+    this.hz = hz;
     if(joinImmediate)
-      join();
+      acceptJoin();
   }
+  
   /**
-   * 
-   */
-  public HazelcastKeyValueAdapter() {
-    this(false, null);
-  }
-  /**
-   * 
+   * Initialized but not joined
    * @param classpathXmlCfg
    */
-  public HazelcastKeyValueAdapter(String classpathXmlCfg) {
-    this(false, classpathXmlCfg);
+  public HazelcastKeyValueAdapter(HazelcastClusterServiceBean hz) {
+    this(false, hz);
   }
   /**
    * Add a local entry listener on the given map for add/update entry. Local entry listeners
@@ -79,11 +77,12 @@ public class HazelcastKeyValueAdapter extends AbstractKeyValueAdapter {
     hz.addLocalEntryListener(callback.keyspace(), callback);
   }
   /**
-   * Add a lifecycle listener to receive Hazelcast membership event callbacks. 
+   * Add a membership event observer to receive Hazelcast membership event callbacks. Membership observers have to be
+   * registered before {@link #acceptJoin()} is invoked.
    * @param observer
    * @throws IllegalAccessException if added after service is already started
    */
-  public void addMembershipObserver(AbstractMembershipEventObserver observer) throws IllegalAccessException
+  public void addMembershipObserver(MembershipEventObserver observer) throws IllegalAccessException
   {
     if(hz.isStarted())
       throw new IllegalAccessException("MembershipEventObserver cannot be added after Hazelcast service has been started");
@@ -91,7 +90,7 @@ public class HazelcastKeyValueAdapter extends AbstractKeyValueAdapter {
   }
   /**
    * Add a partition migration listener on the given map. Migration listeners have to be
-   * registered before {@link #join()} is invoked.
+   * registered before {@link #acceptJoin()} is invoked.
    * @param <V>
    * @param callback
    * @throws IllegalAccessException if added after service is already started
@@ -109,7 +108,7 @@ public class HazelcastKeyValueAdapter extends AbstractKeyValueAdapter {
    * Starts Hazelcast service and joins to cluster. Basically this registers 
    * the lifecycle listener and any partition migration listeners.
    */
-  public void join()
+  public void acceptJoin()
   {
     hz.startService();
   }
@@ -214,7 +213,7 @@ public class HazelcastKeyValueAdapter extends AbstractKeyValueAdapter {
   public void destroy() throws Exception {
     if(!hz.isStarted())
       throw new IllegalStateException("Hazelcast service not started!");
-    hz.stopService(false);
+    hz.stopService();
     
   }
 

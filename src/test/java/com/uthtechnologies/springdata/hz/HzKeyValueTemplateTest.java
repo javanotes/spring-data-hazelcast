@@ -25,20 +25,25 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.List;
 
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Persistent;
 import org.springframework.data.keyvalue.annotation.KeySpace;
 import org.springframework.data.keyvalue.core.KeyValueTemplate;
 import org.springframework.data.keyvalue.core.query.KeyValueQuery;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.util.ObjectUtils;
 
-import com.uthtechnologies.springdata.hz.HazelcastKeyValueAdapter;
+import com.uthtechnologies.springdata.keyval.HazelcastConfiguratorBean;
+import com.uthtechnologies.springdata.keyval.annotation.HzMapConfig;
 
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(classes = {HazelcastConfiguratorBean.class})
 public class HzKeyValueTemplateTest {
 
   static final Foo FOO_ONE = new Foo("one");
@@ -49,7 +54,9 @@ public class HzKeyValueTemplateTest {
   static final SubclassOfAliasedType SUBCLASS_OF_ALIASED = new SubclassOfAliasedType("sub");
   static final KeyValueQuery<String> STRING_QUERY = new KeyValueQuery<String>("foo == 'two'");
 
-  static KeyValueTemplate operations;
+  @Autowired
+  KeyValueTemplate operations;
+  
   @Before
   public void before()
   {
@@ -60,17 +67,17 @@ public class HzKeyValueTemplateTest {
     
   }
 
-  @BeforeClass
+  /*@BeforeClass
   public static void setUp() throws InstantiationException, IllegalAccessException {
-    HazelcastKeyValueAdapter hz = new HazelcastKeyValueAdapter();
+    HazelcastKeyValueAdapterBean hz = new HazelcastKeyValueAdapterBean("com.uthtechnologies.springdata.hz");
     operations = new KeyValueTemplate(hz);
-    hz.join();
+    hz.acceptJoin();
   }
 
   @AfterClass
   public static void tearDown() throws Exception {
     operations.destroy();
-  }
+  }*/
 
   /**
    * @see DATACMNS-525
@@ -353,6 +360,7 @@ public class HzKeyValueTemplateTest {
 
   }
 
+  @HzMapConfig(name = "_ClassWithStringId")
   static class ClassWithStringId implements Serializable {
 
     private static final long serialVersionUID = -7481030649267602830L;

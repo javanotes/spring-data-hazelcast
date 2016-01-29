@@ -1,4 +1,4 @@
-package com.uthtechnologies.springdata.hz.core;
+package com.uthtechnologies.springdata.keyval.core;
 /* ============================================================================
 *
 * FILE: HzClusterService.java
@@ -40,11 +40,14 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import javax.annotation.PreDestroy;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 
 import com.hazelcast.config.ConfigurationException;
+import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.MemberAttributeEvent;
 import com.hazelcast.core.MembershipEvent;
@@ -52,8 +55,8 @@ import com.hazelcast.core.MembershipListener;
 import com.hazelcast.core.MigrationEvent;
 import com.hazelcast.core.MigrationListener;
 import com.hazelcast.map.listener.MapListener;
-import com.uthtechnologies.springdata.hz.AbstractMembershipEventObserver;
-import com.uthtechnologies.springdata.hz.PartitionMigrationCallback;
+import com.uthtechnologies.springdata.keyval.handlers.MembershipEventObserver;
+import com.uthtechnologies.springdata.keyval.handlers.PartitionMigrationCallback;
 
 /**
  * This is the class responsible for maintaining the peer to peer clustering using Hazelcast. 
@@ -61,15 +64,11 @@ import com.uthtechnologies.springdata.hz.PartitionMigrationCallback;
  * @author esutdal
  *
  */
-public final class HzClusterService {
+public final class HazelcastClusterServiceBean {
 	
-	public static final String MSG_PAUSE_INGEST = "MSG_PAUSE_INGEST";
-	public static final String MSG_PAUSE_INGEST_ACK = "MSG_PAUSE_INGEST_ACK";
-	public static final String MSG_RESUME_INGEST = "MSG_RESUME_INGEST";
-	
-	private HzInstanceProxy hzInstance = null;
+	private HazelcastInstanceProxy hzInstance = null;
 		
-	private static final Logger log = LoggerFactory.getLogger(HzClusterService.class);
+	private static final Logger log = LoggerFactory.getLogger(HazelcastClusterServiceBean.class);
 	
 	//we will be needing these for short time tasks.  Since a member addition / removal operation should not occur very frequently
 	private final ExecutorService worker = Executors.newCachedThreadPool(new ThreadFactory() {
@@ -82,6 +81,16 @@ public final class HzClusterService {
 		}
 	});
 	
+	/**
+	 * Gets the underlying Hazelcast instance. Should be used with caution
+	 * @return
+	 */
+	public final HazelcastInstance getHazelcastInstance()
+	{
+	  if(!isStarted())
+	    throw new IllegalStateException("HazelcastInstance not started!");
+	  return hzInstance.getHazelcast();
+	}
 	public void remove(Object key, String map)
   {
 	  hzInstance.remove(key, map);
@@ -114,7 +123,7 @@ public final class HzClusterService {
 	 * @author esutdal
 	 *
 	 */
-	private class InstanceListener extends Observable implements MembershipListener{
+	private static class InstanceListener extends Observable implements MembershipListener{
 
 		@Override
 		public void memberRemoved(final MembershipEvent event) {
@@ -230,34 +239,13 @@ public final class HzClusterService {
 	 * @param props
 	 * @throws ConfigurationException
 	 */
-	private HzClusterService(String cfgXml) {
+	HazelcastClusterServiceBean(String cfgXml, String entityScanPath) {
 		if(hzInstance == null)
 		{
-			hzInstance = StringUtils.hasText(cfgXml) ? new HzInstanceProxy(cfgXml) : new HzInstanceProxy();
+			hzInstance = StringUtils.hasText(cfgXml) ? new HazelcastInstanceProxy(cfgXml, entityScanPath) : new HazelcastInstanceProxy(entityScanPath);
 		}
 	}
-		
-	private static HzClusterService singleton;
 	
-	/**
-	 * 
-	 * @param cfXml
-	 * @return
-	 */
-	public static HzClusterService instance(String cfXml)
-  {
-    if(singleton == null)
-    {
-      synchronized (HzClusterService.class) {
-        if(singleton == null)
-        {
-          singleton = new HzClusterService(cfXml);
-        }
-      }
-    }
-    return singleton;
-  }
-
 	private volatile boolean started;
 	/**
 	 * 
@@ -286,14 +274,16 @@ public final class HzClusterService {
 	{
 		return hzInstance.noOfMembers();
 	}
+	
 	/**
 	 * 
 	 * @param retry
 	 */
-	public void stopService(boolean retry) {
+	@PreDestroy
+	public void stopService() {
 		if(hzInstance != null)
 		{
-			hzInstance.stop("");
+			hzInstance.stop();
 		}
 		worker.shutdown();
 		try {
@@ -301,8 +291,7 @@ public final class HzClusterService {
 		} catch (InterruptedException e) {
 			
 		}
-		
-		log.info("Stopped cluster listener");
+				
 	}
 
   public Object removeNow(Serializable id, String string) {
@@ -310,7 +299,7 @@ public final class HzClusterService {
     
   }
 
-  public void addInstanceListenerObserver(AbstractMembershipEventObserver observer) {
+  public void addInstanceListenerObserver(MembershipEventObserver observer) {
     instanceListener.addObserver(observer);      
     
   }

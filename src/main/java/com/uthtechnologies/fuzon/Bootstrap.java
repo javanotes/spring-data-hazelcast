@@ -1,6 +1,6 @@
 /* ============================================================================
 *
-* FILE: PartitionMigrationCallback.java
+* FILE: Bootstrap.java
 *
 The MIT License (MIT)
 
@@ -23,26 +23,24 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-
 *
 * ============================================================================
 */
-package com.uthtechnologies.springdata.hz;
+package com.uthtechnologies.fuzon;
 
-import java.io.Serializable;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-import com.hazelcast.map.listener.EntryAddedListener;
-import com.hazelcast.map.listener.EntryUpdatedListener;
-/**
- * Local map entry listener on entry addition and updation
- * @param <V>
- */
-public interface LocalPutMapEntryCallback<V> extends EntryAddedListener<Serializable, V>, EntryUpdatedListener<Serializable, V>{
+import com.uthtechnologies.springdata.keyval.HazelcastConfiguratorBean;
 
-  /**
-   * Gets the Map for which migrated elements will have a callback
-   * @return
-   */
-  String keyspace();
-  
+@SpringBootApplication(scanBasePackageClasses = {
+    HazelcastConfiguratorBean.class })
+public class Bootstrap {
+
+  public static void main(String[] args) {
+    SpringApplication app = new SpringApplication(Bootstrap.class);
+    app.run(args);
+    //System.exit(0);
+  }
+
 }

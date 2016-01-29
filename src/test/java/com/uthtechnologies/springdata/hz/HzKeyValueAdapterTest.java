@@ -21,14 +21,21 @@ import static org.junit.Assert.assertThat;
 import java.io.Serializable;
 import java.util.Map;
 
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.util.CloseableIterator;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.util.ObjectUtils;
 
-import com.uthtechnologies.springdata.hz.HazelcastKeyValueAdapter;
+import com.uthtechnologies.springdata.keyval.HazelcastConfiguratorBean;
+import com.uthtechnologies.springdata.keyval.HazelcastKeyValueAdapter;
 
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(classes = {HazelcastConfiguratorBean.class})
 public class HzKeyValueAdapterTest {
   private static final String COLLECTION_1 = "collection-1";
   private static final String COLLECTION_2 = "collection-2";
@@ -37,20 +44,22 @@ public class HzKeyValueAdapterTest {
   private Object object1 = new SimpleObject("one");
   private Object object2 = new SimpleObject("two");
 
-  private static HazelcastKeyValueAdapter adapter;
-
-  @BeforeClass
-  public static void setUp() {
-    adapter = new HazelcastKeyValueAdapter();
-    adapter.join();
+  @Autowired
+  private HazelcastKeyValueAdapter adapter;
+  
+  
+  @Before
+  public void setUp() {
+    
+    adapter.deleteAllOf(COLLECTION_1);
+    adapter.deleteAllOf(COLLECTION_2);
+    adapter.deleteAllOf(STRING_1);
+    adapter.deleteAllOf(COLLECTION_1);
+    
   }
-  @AfterClass
-  public static void tearDown() {
-    try {
-      adapter.destroy();
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
+  @After
+  public void tearDown() {
+    
   }
 
   /**
