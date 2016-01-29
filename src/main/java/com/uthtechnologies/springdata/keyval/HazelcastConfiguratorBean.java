@@ -68,17 +68,17 @@ public class HazelcastConfiguratorBean {
   }
   @Bean
   @Primary
-  public HazelcastKeyValueAdapter hzKeyValueAdaptor() throws Exception
+  public HazelcastKeyValueAdapterBean hzKeyValueAdaptor() throws Exception
   {
-    HazelcastKeyValueAdapter bean = new HazelcastKeyValueAdapter(hzServiceBean());
+    HazelcastKeyValueAdapterBean bean = new HazelcastKeyValueAdapterBean(hzServiceBean());
     return bean;
     
   }
   @Bean
   @Qualifier("hzKeyValueAdaptorJoinImmediate")
-  public HazelcastKeyValueAdapter hzKeyValueAdaptorJoinImmediate() throws Exception
+  public HazelcastKeyValueAdapterBean hzKeyValueAdaptorJoinImmediate() throws Exception
   {
-    HazelcastKeyValueAdapter bean = new HazelcastKeyValueAdapter(true, hzServiceBean());
+    HazelcastKeyValueAdapterBean bean = new HazelcastKeyValueAdapterBean(true, hzServiceBean());
     return bean;
     
   }

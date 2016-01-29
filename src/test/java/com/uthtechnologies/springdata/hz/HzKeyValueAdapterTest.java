@@ -32,7 +32,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.util.ObjectUtils;
 
 import com.uthtechnologies.springdata.keyval.HazelcastConfiguratorBean;
-import com.uthtechnologies.springdata.keyval.HazelcastKeyValueAdapter;
+import com.uthtechnologies.springdata.keyval.HazelcastKeyValueAdapterBean;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = {HazelcastConfiguratorBean.class})
@@ -45,7 +45,7 @@ public class HzKeyValueAdapterTest {
   private Object object2 = new SimpleObject("two");
 
   @Autowired
-  private HazelcastKeyValueAdapter adapter;
+  private HazelcastKeyValueAdapterBean adapter;
   
   
   @Before

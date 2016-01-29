@@ -44,7 +44,7 @@ import com.uthtechnologies.springdata.keyval.handlers.PartitionMigrationCallback
 /**
  * 
  */
-public class HazelcastKeyValueAdapter extends AbstractKeyValueAdapter {
+public class HazelcastKeyValueAdapterBean extends AbstractKeyValueAdapter {
   
   private final HazelcastClusterServiceBean hz;
  /**
@@ -52,7 +52,7 @@ public class HazelcastKeyValueAdapter extends AbstractKeyValueAdapter {
   * @param joinImmediate - if start listening immediately
   * @param xmlCfg
   */
-  public HazelcastKeyValueAdapter(boolean joinImmediate, HazelcastClusterServiceBean hz) {
+  public HazelcastKeyValueAdapterBean(boolean joinImmediate, HazelcastClusterServiceBean hz) {
     this.hz = hz;
     if(joinImmediate)
       acceptJoin();
@@ -62,7 +62,7 @@ public class HazelcastKeyValueAdapter extends AbstractKeyValueAdapter {
    * Initialized but not joined
    * @param classpathXmlCfg
    */
-  public HazelcastKeyValueAdapter(HazelcastClusterServiceBean hz) {
+  public HazelcastKeyValueAdapterBean(HazelcastClusterServiceBean hz) {
     this(false, hz);
   }
   /**
