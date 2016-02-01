@@ -1,6 +1,6 @@
 /* ============================================================================
 *
-* FILE: HzNetworkConfig.java
+* FILE: FeederStrategy.java
 *
 The MIT License (MIT)
 
@@ -26,19 +26,35 @@ SOFTWARE.
 *
 * ============================================================================
 */
-package com.uthtechnologies.springdata.keyval.annotation;
+package com.uthtechnologies.fuzon.interceptor;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.io.Serializable;
+import java.util.Comparator;
 
-@Retention(RetentionPolicy.RUNTIME)
-@Target(value = { ElementType.TYPE })
-public @interface HzNetworkConfig {
+public enum FeederStrategy {
 
-  boolean tcpipEnabled() default false;
-  String tcpipInterface() default "127.0.0.1";
-  String[] tcpipMemberList() default "";
-  int port() default 5701;
+  SEQUENTIAL_RANDOM,SEQUENTIAL_ORDERED,PARALLEL_RANDOM,PARALLEL_ORDERED;
+  
+  private int noOfThreads = 1;
+  private Comparator<OutboundInterceptor<Serializable>> comparator;
+  
+  private long timeoutSecs = 30;
+  public int getNoOfThreads() {
+    return noOfThreads;
+  }
+  public void setNoOfThreads(int noOfThreads) {
+    this.noOfThreads = noOfThreads;
+  }
+  public Comparator<OutboundInterceptor<Serializable>> getComparator() {
+    return comparator;
+  }
+  public void setComparator(Comparator<OutboundInterceptor<Serializable>> comparator) {
+    this.comparator = comparator;
+  }
+  public long getTimeoutSecs() {
+    return timeoutSecs;
+  }
+  public void setTimeoutSecs(long timeoutSecs) {
+    this.timeoutSecs = timeoutSecs;
+  }
 }

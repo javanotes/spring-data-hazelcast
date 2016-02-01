@@ -1,6 +1,6 @@
 /* ============================================================================
 *
-* FILE: HzMapConfig.java
+* FILE: DefaultOutboundChannel.java
 *
 The MIT License (MIT)
 
@@ -26,34 +26,36 @@ SOFTWARE.
 *
 * ============================================================================
 */
-package com.uthtechnologies.springdata.keyval.annotation;
+package com.uthtechnologies.fuzon.defaults;
 
-import static java.lang.annotation.ElementType.TYPE;
+import java.io.Serializable;
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-
-import org.springframework.data.annotation.Persistent;
-import org.springframework.data.keyvalue.annotation.KeySpace;
-@Persistent
-@Retention(RetentionPolicy.RUNTIME)
-@Target(value = { TYPE })
+import com.uthtechnologies.fuzon.interceptor.AbstractOutboundChannel;
+import com.uthtechnologies.fuzon.interceptor.OutboundInterceptor;
 /**
- * Quick settings for a Map config. NOTE: This will override any setting made in the hazelcast config xml
+ * No operation implementation
  */
-public @interface HzMapConfig {
+public class DefaultOutboundChannel extends AbstractOutboundChannel {
 
-  @KeySpace
-  String name();
-  String inMemoryFormat() default "BINARY";
-  int backupCount() default 1;
-  int asyncBackupCount() default 0;
-  int ttlSeconds()default 0;
-  int idleSeconds()default 0;
-  String evictPolicy() default "NONE";
-  int evictPercentage() default 25;
-  int maxSizePerNode() default 0;
-  long evictCheckMillis() default 100;
-    
+  /**
+   * Add a new outbound path to this channel
+   * @param out
+   */
+  public void addFeeder(OutboundInterceptor<Serializable> out)
+  {
+    feeders.add(out);
+  }
+  @Override
+  public void onFeedException(Serializable item, OutboundInterceptor<Serializable> feeder,
+      Throwable exception) {
+    // TODO Feeder exception handler
+
+  }
+
+  @Override
+  public void onFeedTimeout(Serializable item, OutboundInterceptor<Serializable> feeder) {
+    // TODO Feeder timeout handler
+
+  }
+
 }

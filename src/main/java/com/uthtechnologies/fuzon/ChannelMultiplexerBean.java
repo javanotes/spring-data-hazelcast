@@ -1,6 +1,6 @@
 /* ============================================================================
 *
-* FILE: HzMapConfig.java
+* FILE: ChannelAdaptorBean.java
 *
 The MIT License (MIT)
 
@@ -26,34 +26,39 @@ SOFTWARE.
 *
 * ============================================================================
 */
-package com.uthtechnologies.springdata.keyval.annotation;
+package com.uthtechnologies.fuzon;
 
-import static java.lang.annotation.ElementType.TYPE;
+import java.io.Serializable;
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import javax.annotation.PostConstruct;
 
-import org.springframework.data.annotation.Persistent;
-import org.springframework.data.keyvalue.annotation.KeySpace;
-@Persistent
-@Retention(RetentionPolicy.RUNTIME)
-@Target(value = { TYPE })
+import com.uthtechnologies.fuzon.interceptor.AbstractInboundInterceptor;
+import com.uthtechnologies.springdata.keyval.HazelcastKeyValueAdapterBean;
 /**
- * Quick settings for a Map config. NOTE: This will override any setting made in the hazelcast config xml
+ * The main class to be used as a multiplexer for message channel creation
  */
-public @interface HzMapConfig {
-
-  @KeySpace
-  String name();
-  String inMemoryFormat() default "BINARY";
-  int backupCount() default 1;
-  int asyncBackupCount() default 0;
-  int ttlSeconds()default 0;
-  int idleSeconds()default 0;
-  String evictPolicy() default "NONE";
-  int evictPercentage() default 25;
-  int maxSizePerNode() default 0;
-  long evictCheckMillis() default 100;
-    
+public class ChannelMultiplexerBean {
+  
+  private final HazelcastKeyValueAdapterBean hzAdaptor;
+  ChannelMultiplexerBean(HazelcastKeyValueAdapterBean hzAdaptor)
+  {
+    this.hzAdaptor = hzAdaptor;
+  }
+  
+  private AbstractInboundInterceptor<?, ? extends Serializable> channel;
+  public AbstractInboundInterceptor<?, ? extends Serializable> getChannel() {
+    return channel;
+  }
+  public void setChannel(AbstractInboundInterceptor<?, ? extends Serializable> channel) {
+    this.channel = channel;
+  }
+  /**
+   * Creates a new channel with an inbound interceptor implementation.
+   * @param channel
+   */
+  @PostConstruct
+  public <V> void createChannel()
+  {
+    hzAdaptor.addLocalKeyspaceListener(channel);
+  }
 }

@@ -33,6 +33,8 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.core.type.AnnotationMetadata;
@@ -45,6 +47,7 @@ import com.uthtechnologies.springdata.keyval.annotation.HzMapConfig;
 
 public class EntityFinder {
 
+  private static final Logger log = LoggerFactory.getLogger(EntityFinder.class);
   /**
    * 
    * @param basePkg
@@ -72,10 +75,16 @@ public class EntityFinder {
       throw new IllegalArgumentException("Unable to scan for entities under base package", e);
     }
     
-    Set<Class<?>> classes = new HashSet<>(beans.size());
-    for(BeanDefinition bd : beans)
+    Set<Class<?>> classes = new HashSet<>();
+    if (beans != null && !beans.isEmpty()) {
+      classes = new HashSet<>(beans.size());
+      for (BeanDefinition bd : beans) {
+        classes.add(Class.forName(bd.getBeanClassName()));
+      } 
+    }
+    else
     {
-      classes.add(Class.forName(bd.getBeanClassName()));
+      log.warn(">> Did not find any key value entities under the given base scan package ["+basePkg+"]");
     }
     return classes;
     

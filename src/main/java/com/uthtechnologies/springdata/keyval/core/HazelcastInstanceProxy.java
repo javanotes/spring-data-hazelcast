@@ -1,4 +1,5 @@
 package com.uthtechnologies.springdata.keyval.core;
+import java.io.File;
 /* ============================================================================
 *
 * FILE: HzInstanceProxy.java
@@ -37,10 +38,10 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.hazelcast.config.ClasspathXmlConfig;
 import com.hazelcast.config.Config;
 import com.hazelcast.config.ConfigurationException;
 import com.hazelcast.config.EvictionPolicy;
+import com.hazelcast.config.FileSystemXmlConfig;
 import com.hazelcast.config.InMemoryFormat;
 import com.hazelcast.config.MapConfig;
 import com.hazelcast.config.MaxSizeConfig;
@@ -120,6 +121,11 @@ class HazelcastInstanceProxy {
 	  {
 	    HzMapConfig hc = c.getAnnotation(HzMapConfig.class);
 	    MapConfig mapC = new MapConfig(hc.name());
+	    if(hzConfig.getMapConfigs().containsKey(hc.name()))
+	    {
+	      mapC = hzConfig.getMapConfig(hc.name());
+	    }
+	    
 	    mapC.setAsyncBackupCount(hc.asyncBackupCount());
 	    mapC.setBackupCount(hc.backupCount());
 	    mapC.setEvictionPercentage(hc.evictPercentage());
@@ -177,9 +183,9 @@ class HazelcastInstanceProxy {
 	{
 	  this(new Config(), entityBasePkg);
 	}
-	public HazelcastInstanceProxy(String configFile, String entityBasePkg)
+	public HazelcastInstanceProxy(File configFile, String entityBasePkg) throws FileNotFoundException
 	{
-	  this(new ClasspathXmlConfig(configFile), entityBasePkg);
+	  this(new FileSystemXmlConfig(configFile), entityBasePkg);
 	}
 	
 	/**

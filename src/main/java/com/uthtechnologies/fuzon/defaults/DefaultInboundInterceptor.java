@@ -1,6 +1,6 @@
 /* ============================================================================
 *
-* FILE: HzMapConfig.java
+* FILE: DefaultInboundInterceptor.java
 *
 The MIT License (MIT)
 
@@ -26,34 +26,27 @@ SOFTWARE.
 *
 * ============================================================================
 */
-package com.uthtechnologies.springdata.keyval.annotation;
+package com.uthtechnologies.fuzon.defaults;
 
-import static java.lang.annotation.ElementType.TYPE;
+import java.io.Serializable;
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-
-import org.springframework.data.annotation.Persistent;
-import org.springframework.data.keyvalue.annotation.KeySpace;
-@Persistent
-@Retention(RetentionPolicy.RUNTIME)
-@Target(value = { TYPE })
+import com.uthtechnologies.fuzon.interceptor.AbstractInboundInterceptor;
 /**
- * Quick settings for a Map config. NOTE: This will override any setting made in the hazelcast config xml
+ * No operation implementation
  */
-public @interface HzMapConfig {
+public class DefaultInboundInterceptor
+    extends AbstractInboundInterceptor<String, String> {
 
-  @KeySpace
-  String name();
-  String inMemoryFormat() default "BINARY";
-  int backupCount() default 1;
-  int asyncBackupCount() default 0;
-  int ttlSeconds()default 0;
-  int idleSeconds()default 0;
-  String evictPolicy() default "NONE";
-  int evictPercentage() default 25;
-  int maxSizePerNode() default 0;
-  long evictCheckMillis() default 100;
-    
+  @Override
+  public String keyspace() {
+    // TODO The IMap on which to listen for inbound messages
+    return "";
+  }
+
+  @Override
+  public String intercept(Serializable key, String _new, String _old) {
+    // TODO Transformation of the inbound message
+    return _new;
+  }
+
 }

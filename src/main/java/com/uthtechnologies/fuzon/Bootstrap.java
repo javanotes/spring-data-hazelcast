@@ -28,19 +28,57 @@ SOFTWARE.
 */
 package com.uthtechnologies.fuzon;
 
+import java.io.Serializable;
+
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
 
+import com.uthtechnologies.fuzon.defaults.DefaultInboundInterceptor;
+import com.uthtechnologies.fuzon.defaults.DefaultOutboundChannel;
+import com.uthtechnologies.fuzon.interceptor.AbstractInboundInterceptor;
+import com.uthtechnologies.fuzon.interceptor.AbstractOutboundChannel;
 import com.uthtechnologies.springdata.keyval.HazelcastConfiguratorBean;
 
 @SpringBootApplication(scanBasePackageClasses = {
     HazelcastConfiguratorBean.class })
 public class Bootstrap {
 
+  @Bean
+  public ChannelMultiplexerFactoryBean channelMultiplexerFactoryBean()
+  {
+    ChannelMultiplexerFactoryBean bean = new ChannelMultiplexerFactoryBean();
+    return bean;
+  }
+  @Bean
+  public ChannelMultiplexerBean channelMultiplexerBean() throws Exception
+  {
+    ChannelMultiplexerBean bean = channelMultiplexerFactoryBean().getObject();
+    bean.setChannel(inbound());
+    return bean;
+  }
+  
+  //Change these to implementation classes as necessary
+  @Bean
+  public AbstractInboundInterceptor<?, ? extends Serializable> inbound()
+  {
+    DefaultInboundInterceptor in = new DefaultInboundInterceptor();
+    return in;
+  }
+  @Bean
+  public AbstractOutboundChannel outbound()
+  {
+    DefaultOutboundChannel out = new DefaultOutboundChannel();
+    //out.addFeeder(out);out.addFeeder(out);out.addFeeder(out);
+    //out.setStrategy(strategy);
+    return out;
+  }
+  
+  
   public static void main(String[] args) {
     SpringApplication app = new SpringApplication(Bootstrap.class);
     app.run(args);
-    //System.exit(0);
+    
   }
 
 }

@@ -198,7 +198,7 @@ public class HazelcastKeyValueAdapterBean extends AbstractKeyValueAdapter {
    */
   @Override
   public void clear() {
-    System.err.println("<< WARNING: HazelcastKeyValueAdapter.clear() IGNORED >>");
+    System.err.println("<< HazelcastKeyValueAdapter.clear() IGNORED >>");
   }
 
   @Override

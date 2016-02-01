@@ -1,4 +1,5 @@
 package com.uthtechnologies.springdata.keyval.core;
+import java.io.IOException;
 /* ============================================================================
 *
 * FILE: HzClusterService.java
@@ -57,6 +58,7 @@ import com.hazelcast.core.MigrationListener;
 import com.hazelcast.map.listener.MapListener;
 import com.uthtechnologies.springdata.keyval.handlers.MembershipEventObserver;
 import com.uthtechnologies.springdata.keyval.handlers.PartitionMigrationCallback;
+import com.uthtechnologies.springdata.keyval.util.ResourceLoaderHelper;
 
 /**
  * This is the class responsible for maintaining the peer to peer clustering using Hazelcast. 
@@ -234,6 +236,7 @@ public final class HazelcastClusterServiceBean {
       }
     });
 	}
+	
 	/**
 	 * Public constructor
 	 * @param props
@@ -242,7 +245,11 @@ public final class HazelcastClusterServiceBean {
 	HazelcastClusterServiceBean(String cfgXml, String entityScanPath) {
 		if(hzInstance == null)
 		{
-			hzInstance = StringUtils.hasText(cfgXml) ? new HazelcastInstanceProxy(cfgXml, entityScanPath) : new HazelcastInstanceProxy(entityScanPath);
+			try {
+        hzInstance = StringUtils.hasText(cfgXml) ? new HazelcastInstanceProxy(ResourceLoaderHelper.loadFromFileOrClassPath(cfgXml), entityScanPath) : new HazelcastInstanceProxy(entityScanPath);
+      } catch (IOException e) {
+        throw new IllegalArgumentException(e);
+      }
 		}
 	}
 	

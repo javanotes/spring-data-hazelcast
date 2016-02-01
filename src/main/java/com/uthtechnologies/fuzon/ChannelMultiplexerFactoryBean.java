@@ -1,6 +1,6 @@
 /* ============================================================================
 *
-* FILE: HzMapConfig.java
+* FILE: ChannelMultiplexerFactoryBean.java
 *
 The MIT License (MIT)
 
@@ -26,34 +26,32 @@ SOFTWARE.
 *
 * ============================================================================
 */
-package com.uthtechnologies.springdata.keyval.annotation;
+package com.uthtechnologies.fuzon;
 
-import static java.lang.annotation.ElementType.TYPE;
+import org.springframework.beans.factory.FactoryBean;
+import org.springframework.beans.factory.annotation.Autowired;
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import com.uthtechnologies.springdata.keyval.HazelcastKeyValueAdapterBean;
 
-import org.springframework.data.annotation.Persistent;
-import org.springframework.data.keyvalue.annotation.KeySpace;
-@Persistent
-@Retention(RetentionPolicy.RUNTIME)
-@Target(value = { TYPE })
-/**
- * Quick settings for a Map config. NOTE: This will override any setting made in the hazelcast config xml
- */
-public @interface HzMapConfig {
+public class ChannelMultiplexerFactoryBean
+    implements FactoryBean<ChannelMultiplexerBean> {
 
-  @KeySpace
-  String name();
-  String inMemoryFormat() default "BINARY";
-  int backupCount() default 1;
-  int asyncBackupCount() default 0;
-  int ttlSeconds()default 0;
-  int idleSeconds()default 0;
-  String evictPolicy() default "NONE";
-  int evictPercentage() default 25;
-  int maxSizePerNode() default 0;
-  long evictCheckMillis() default 100;
-    
+  @Autowired
+  private HazelcastKeyValueAdapterBean kzAdapter;
+  @Override
+  public ChannelMultiplexerBean getObject() throws Exception {
+    ChannelMultiplexerBean bean = new ChannelMultiplexerBean(kzAdapter);
+    return bean;
+  }
+
+  @Override
+  public Class<?> getObjectType() {
+    return ChannelMultiplexerBean.class;
+  }
+
+  @Override
+  public boolean isSingleton() {
+    return false;
+  }
+
 }

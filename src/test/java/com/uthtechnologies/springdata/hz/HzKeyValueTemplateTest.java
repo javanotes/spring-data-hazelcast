@@ -29,21 +29,21 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Persistent;
 import org.springframework.data.keyvalue.annotation.KeySpace;
 import org.springframework.data.keyvalue.core.KeyValueTemplate;
 import org.springframework.data.keyvalue.core.query.KeyValueQuery;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.util.ObjectUtils;
 
-import com.uthtechnologies.springdata.keyval.HazelcastConfiguratorBean;
+import com.uthtechnologies.fuzon.Bootstrap;
 import com.uthtechnologies.springdata.keyval.annotation.HzMapConfig;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = {HazelcastConfiguratorBean.class})
+@SpringApplicationConfiguration(classes = Bootstrap.class)
 public class HzKeyValueTemplateTest {
 
   static final Foo FOO_ONE = new Foo("one");

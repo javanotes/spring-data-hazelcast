@@ -1,6 +1,6 @@
 /* ============================================================================
 *
-* FILE: HzMapConfig.java
+* FILE: IncomingInterceptor.java
 *
 The MIT License (MIT)
 
@@ -26,34 +26,17 @@ SOFTWARE.
 *
 * ============================================================================
 */
-package com.uthtechnologies.springdata.keyval.annotation;
+package com.uthtechnologies.fuzon.interceptor;
 
-import static java.lang.annotation.ElementType.TYPE;
+import java.io.Serializable;
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-
-import org.springframework.data.annotation.Persistent;
-import org.springframework.data.keyvalue.annotation.KeySpace;
-@Persistent
-@Retention(RetentionPolicy.RUNTIME)
-@Target(value = { TYPE })
-/**
- * Quick settings for a Map config. NOTE: This will override any setting made in the hazelcast config xml
- */
-public @interface HzMapConfig {
-
-  @KeySpace
-  String name();
-  String inMemoryFormat() default "BINARY";
-  int backupCount() default 1;
-  int asyncBackupCount() default 0;
-  int ttlSeconds()default 0;
-  int idleSeconds()default 0;
-  String evictPolicy() default "NONE";
-  int evictPercentage() default 25;
-  int maxSizePerNode() default 0;
-  long evictCheckMillis() default 100;
-    
+public interface InboundInterceptor<T, X> {
+  /**
+   * Intercept and transform inbound message
+   * @param key
+   * @param _new
+   * @param _old
+   * @return
+   */
+  X intercept(Serializable key, T _new, T _old);
 }

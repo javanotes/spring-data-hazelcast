@@ -42,7 +42,7 @@ import com.uthtechnologies.springdata.keyval.core.HazelcastClusterServiceFactory
 @Configuration
 public class HazelcastConfiguratorBean {
 
-  @Value("${keyval.hz.cfg: }")
+  @Value("${keyval.hazelcast.cfg: }")
   private String configXml;
   @Value("${keyval.entity.base:com.uthtechnologies.springdata.hz}")
   private String entityPkg;
