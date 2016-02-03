@@ -34,12 +34,12 @@ import javax.annotation.PostConstruct;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.hazelcast.core.EntryEvent;
+import com.uthtechnologies.fuzon.message.Event;
 import com.uthtechnologies.springdata.keyval.handlers.LocalPutMapEntryCallback;
 /**
  * 
@@ -50,27 +50,38 @@ import com.uthtechnologies.springdata.keyval.handlers.LocalPutMapEntryCallback;
 @Component
 @Scope(scopeName = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public abstract class AbstractInboundInterceptor<V extends Serializable, T extends Serializable>
-    implements LocalPutMapEntryCallback<V>, InboundInterceptor<V, T> {
+    implements LocalPutMapEntryCallback<Event<V>>, InboundInterceptor<Serializable, Serializable> {
 
   private static final Logger log = LoggerFactory.getLogger(AbstractInboundInterceptor.class);
-  @Autowired
+  
   protected AbstractOutboundChannel outChannel;
   
+  public AbstractOutboundChannel getOutChannel() {
+    return outChannel;
+  }
+
+  public void setOutChannel(AbstractOutboundChannel outChannel) {
+    this.outChannel = outChannel;
+  }
+
   @PostConstruct
   protected void init()
   {
     log.info("-- New Inbound channel created "+this+", linked to outbound channel "+outChannel);
   }
+  
   @Override
-  public void entryAdded(EntryEvent<Serializable, V> event) {
-    T t = intercept(event.getKey(), event.getValue(), event.getOldValue());
+  public void entryAdded(EntryEvent<Serializable, Event<V>> event) {
+    Serializable t = intercept(event.getKey(), event.getValue().getPayload(), event.getOldValue().getPayload());
     outChannel.feed(t);
+    
   }
 
   @Override
-  public void entryUpdated(EntryEvent<Serializable, V> event) {
-    T t = intercept(event.getKey(), event.getValue(), event.getOldValue());
+  public void entryUpdated(EntryEvent<Serializable, Event<V>> event) {
+    Serializable t = intercept(event.getKey(), event.getValue().getPayload(), event.getOldValue().getPayload());
     outChannel.feed(t);
+    
   }
 
 }

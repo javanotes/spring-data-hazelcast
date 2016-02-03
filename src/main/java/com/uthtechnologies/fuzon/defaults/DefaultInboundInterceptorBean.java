@@ -1,6 +1,6 @@
 /* ============================================================================
 *
-* FILE: DefaultOutboundChannel.java
+* FILE: DefaultInboundInterceptor.java
 *
 The MIT License (MIT)
 
@@ -30,32 +30,35 @@ package com.uthtechnologies.fuzon.defaults;
 
 import java.io.Serializable;
 
-import com.uthtechnologies.fuzon.interceptor.AbstractOutboundChannel;
-import com.uthtechnologies.fuzon.interceptor.OutboundInterceptor;
+import javax.annotation.PostConstruct;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.uthtechnologies.fuzon.interceptor.AbstractInboundInterceptor;
 /**
  * No operation implementation
  */
-public class DefaultOutboundChannel extends AbstractOutboundChannel {
+public class DefaultInboundInterceptorBean
+    extends AbstractInboundInterceptor<Serializable, Serializable> {
 
-  /**
-   * Add a new outbound path to this channel
-   * @param out
-   */
-  public void addFeeder(OutboundInterceptor<Serializable> out)
+  private static final Logger log = LoggerFactory.getLogger(DefaultInboundInterceptorBean.class);
+  @Override
+  public String keyspace() {
+    // TODO The IMap on which to listen for inbound messages
+    return "";
+  }
+
+  @PostConstruct
+  void created()
   {
-    feeders.add(out);
+    log.info("Ready to intercept. Listening on IMAP::"+keyspace());
   }
   @Override
-  public void onFeedException(Serializable item, OutboundInterceptor<Serializable> feeder,
-      Throwable exception) {
-    // TODO Feeder exception handler
-
-  }
-
-  @Override
-  public void onFeedTimeout(Serializable item, OutboundInterceptor<Serializable> feeder) {
-    // TODO Feeder timeout handler
-
+  public Serializable intercept(Serializable key, Serializable _new,
+      Serializable _old) {
+    // TODO Auto-generated method stub
+    return null;
   }
 
 }

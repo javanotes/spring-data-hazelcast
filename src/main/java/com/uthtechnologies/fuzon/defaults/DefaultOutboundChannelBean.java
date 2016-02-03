@@ -1,6 +1,6 @@
 /* ============================================================================
 *
-* FILE: DefaultInboundInterceptor.java
+* FILE: DefaultOutboundChannel.java
 *
 The MIT License (MIT)
 
@@ -30,23 +30,44 @@ package com.uthtechnologies.fuzon.defaults;
 
 import java.io.Serializable;
 
-import com.uthtechnologies.fuzon.interceptor.AbstractInboundInterceptor;
+import javax.annotation.PostConstruct;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.uthtechnologies.fuzon.interceptor.AbstractOutboundChannel;
+import com.uthtechnologies.fuzon.interceptor.OutboundInterceptor;
 /**
  * No operation implementation
  */
-public class DefaultInboundInterceptor
-    extends AbstractInboundInterceptor<String, String> {
+public class DefaultOutboundChannelBean extends AbstractOutboundChannel {
 
+  @PostConstruct
+  void created()
+  {
+    log.info("Ready to outflow. No. of feeders "+feeders.size());
+  }
+  private static final Logger log = LoggerFactory.getLogger(DefaultOutboundChannelBean.class);
+  /**
+   * Add a new outbound path to this channel
+   * @param out
+   */
+  public void addFeeder(OutboundInterceptor<Serializable> out)
+  {
+    feeders.add(out);
+  }
   @Override
-  public String keyspace() {
-    // TODO The IMap on which to listen for inbound messages
-    return "";
+  public void onFeedException(Serializable item, OutboundInterceptor<Serializable> feeder,
+      Throwable exception) {
+    // TODO Feeder exception handler
+    log.error("Item ["+item+"] had exception on feeding channel ["+feeder+"]. Error:: "+exception.getMessage());
+    log.debug("", exception);
   }
 
   @Override
-  public String intercept(Serializable key, String _new, String _old) {
-    // TODO Transformation of the inbound message
-    return _new;
+  public void onFeedTimeout(Serializable item, OutboundInterceptor<Serializable> feeder) {
+    // TODO Feeder timeout handler
+    log.warn("Item ["+item+"] faced timeout on feeding channel ["+feeder+"]. ");
   }
 
 }

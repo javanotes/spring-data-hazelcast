@@ -34,8 +34,8 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 
-import com.uthtechnologies.fuzon.defaults.DefaultInboundInterceptor;
-import com.uthtechnologies.fuzon.defaults.DefaultOutboundChannel;
+import com.uthtechnologies.fuzon.defaults.DefaultInboundInterceptorBean;
+import com.uthtechnologies.fuzon.defaults.DefaultOutboundChannelBean;
 import com.uthtechnologies.fuzon.interceptor.AbstractInboundInterceptor;
 import com.uthtechnologies.fuzon.interceptor.AbstractOutboundChannel;
 import com.uthtechnologies.springdata.keyval.HazelcastConfiguratorBean;
@@ -58,17 +58,19 @@ public class Bootstrap {
     return bean;
   }
   
-  //Change these to implementation classes as necessary
+  //Default channel linking. Create others as necessary or override default behavior
   @Bean
   public AbstractInboundInterceptor<?, ? extends Serializable> inbound()
   {
-    DefaultInboundInterceptor in = new DefaultInboundInterceptor();
+    DefaultInboundInterceptorBean in = new DefaultInboundInterceptorBean();
+    //link the outbound channel
+    in.setOutChannel(outbound());
     return in;
   }
   @Bean
   public AbstractOutboundChannel outbound()
   {
-    DefaultOutboundChannel out = new DefaultOutboundChannel();
+    DefaultOutboundChannelBean out = new DefaultOutboundChannelBean();
     //out.addFeeder(out);out.addFeeder(out);out.addFeeder(out);
     //out.setStrategy(strategy);
     return out;

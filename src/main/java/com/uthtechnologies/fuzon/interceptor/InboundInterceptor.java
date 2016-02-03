@@ -29,8 +29,13 @@ SOFTWARE.
 package com.uthtechnologies.fuzon.interceptor;
 
 import java.io.Serializable;
-
-public interface InboundInterceptor<T, X> {
+/**
+ * 
+ *
+ * @param <X> input type
+ * @param <T> transformed type (can be same as input)
+ */
+public interface InboundInterceptor<X, T> {
   /**
    * Intercept and transform inbound message
    * @param key
@@ -38,5 +43,5 @@ public interface InboundInterceptor<T, X> {
    * @param _old
    * @return
    */
-  X intercept(Serializable key, T _new, T _old);
+  T intercept(Serializable key, X _new, X _old);
 }
