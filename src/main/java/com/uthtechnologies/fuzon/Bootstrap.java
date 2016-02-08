@@ -28,20 +28,11 @@ SOFTWARE.
 */
 package com.uthtechnologies.fuzon;
 
-import java.io.Serializable;
-
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 
-import com.uthtechnologies.fuzon.defaults.DefaultInboundInterceptorBean;
-import com.uthtechnologies.fuzon.defaults.DefaultOutboundChannelBean;
-import com.uthtechnologies.fuzon.interceptor.AbstractInboundInterceptor;
-import com.uthtechnologies.fuzon.interceptor.AbstractOutboundChannel;
-import com.uthtechnologies.springdata.keyval.HazelcastConfiguratorBean;
-
-@SpringBootApplication(scanBasePackageClasses = {
-    HazelcastConfiguratorBean.class })
+@SpringBootApplication
 public class Bootstrap {
 
   @Bean
@@ -50,6 +41,10 @@ public class Bootstrap {
     ChannelMultiplexerFactoryBean bean = new ChannelMultiplexerFactoryBean();
     return bean;
   }
+  
+  /* -----------------------------------------------------------
+  //This is the main link to flow an incoming message
+  //from inbound to outbound
   @Bean
   public ChannelMultiplexerBean channelMultiplexerBean() throws Exception
   {
@@ -57,7 +52,7 @@ public class Bootstrap {
     bean.setChannel(inbound());
     return bean;
   }
-  
+      
   //Default channel linking. Create others as necessary or override default behavior
   @Bean
   public AbstractInboundInterceptor<?, ? extends Serializable> inbound()
@@ -67,6 +62,8 @@ public class Bootstrap {
     in.setOutChannel(outbound());
     return in;
   }
+  
+  //Outbound feeder configuration
   @Bean
   public AbstractOutboundChannel outbound()
   {
@@ -75,8 +72,8 @@ public class Bootstrap {
     //out.setStrategy(strategy);
     return out;
   }
-  
-  
+  ------------------------------------------------------------------ */
+    
   public static void main(String[] args) {
     SpringApplication app = new SpringApplication(Bootstrap.class);
     app.run(args);

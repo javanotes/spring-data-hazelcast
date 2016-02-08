@@ -32,13 +32,17 @@ import java.io.Serializable;
 
 import javax.annotation.PostConstruct;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.uthtechnologies.fuzon.interceptor.AbstractInboundInterceptor;
-import com.uthtechnologies.springdata.keyval.HazelcastKeyValueAdapterBean;
+import com.uthtechnologies.fuzon.springdata.HazelcastKeyValueAdapterBean;
 /**
  * The main class to be used as a multiplexer for message channel creation
  */
 public class ChannelMultiplexerBean {
-  
+   
+  private final static Logger log = LoggerFactory.getLogger(ChannelMultiplexerBean.class);
   private final HazelcastKeyValueAdapterBean hzAdaptor;
   ChannelMultiplexerBean(HazelcastKeyValueAdapterBean hzAdaptor)
   {
@@ -60,5 +64,6 @@ public class ChannelMultiplexerBean {
   public <V> void createChannel()
   {
     hzAdaptor.addLocalKeyspaceListener(channel);
+    log.info("New channel linked on Hazelcast ==>> "+getChannel());
   }
 }

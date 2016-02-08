@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema attributeFormDefault="unqualified"
+	elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+	<xs:element name="forecast">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="regression">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="set" maxOccurs="unbounded"
+								minOccurs="0">
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element name="target" maxOccurs="1" minOccurs="1">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="table" maxOccurs="1"
+														minOccurs="1">
+														<xs:complexType>
+															<xs:sequence>
+																<xs:element name="column" maxOccurs="1"
+																	minOccurs="1">
+																	<xs:complexType>
+																		<xs:simpleContent>
+																			<xs:extension base="xs:string">
+																				<xs:attribute type="xs:string" name="name" />
+																			</xs:extension>
+																		</xs:simpleContent>
+																	</xs:complexType>
+																</xs:element>
+															</xs:sequence>
+															<xs:attribute type="xs:string" name="name" />
+															<xs:attribute type="xs:string" name="datefield"
+																use="optional" />
+														</xs:complexType>
+													</xs:element>
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="variable" maxOccurs="1"
+											minOccurs="1">
+
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="table" maxOccurs="unbounded"
+														minOccurs="0">
+														<xs:complexType>
+															<xs:sequence>
+																<xs:element name="column" maxOccurs="unbounded"
+																	minOccurs="0">
+																	<xs:complexType>
+																		<xs:simpleContent>
+																			<xs:extension base="xs:string">
+																				<xs:attribute type="xs:string" name="name"
+																					use="required" />
+																				<xs:attribute name="type" use="required">
+																					<xs:simpleType>
+																						<xs:restriction base="xs:string">
+																							<xs:enumeration value="timeseries" />
+																							<xs:enumeration value="filter" />
+																							<xs:enumeration value="nominal" />
+																						</xs:restriction>
+																					</xs:simpleType>
+																				</xs:attribute>
+																				<xs:attribute type="xs:string" name="value"
+																					use="optional" />
+
+																			</xs:extension>
+																		</xs:simpleContent>
+																	</xs:complexType>
+																</xs:element>
+															</xs:sequence>
+															<xs:attribute type="xs:string" name="name"
+																use="required" />
+															<xs:attribute type="xs:string" name="datefield"
+																use="optional" />
+															<xs:attribute name="periodicity" use="optional"
+																default="yearly">
+																<xs:simpleType>
+																	<xs:restriction base="xs:string">
+																		<xs:enumeration value="hourly" />
+																		<xs:enumeration value="daily" />
+																		<xs:enumeration value="weekly" />
+																		<xs:enumeration value="monthly" />
+																		<xs:enumeration value="quarterly" />
+																		<xs:enumeration value="yearly" />
+																	</xs:restriction>
+																</xs:simpleType>
+															</xs:attribute>
+														</xs:complexType>
+													</xs:element>
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="test" maxOccurs="unbounded" minOccurs="0">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="input" maxOccurs="unbounded"
+														minOccurs="1">
+														<xs:complexType>
+															<xs:attribute type="xs:string" name="field" use="required"/>
+															<xs:attribute type="xs:string" name="value" use="required" />
+														</xs:complexType>
+													</xs:element>
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+									</xs:sequence>
+									<xs:attribute type="xs:string" name="name" use="optional" />
+								</xs:complexType>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>

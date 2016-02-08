@@ -1,0 +1,16 @@
+package com.ericsson.fmt.forecasting.method;
+
+import com.ericsson.fmt.forecasting.Forecast;
+
+public interface TimeSeries<T>
+{
+	public static enum Engine
+	{
+		WEKA, OPENFCAST
+	}
+
+	public Forecast<T> execute() throws Exception;
+
+	public String type();
+
+}

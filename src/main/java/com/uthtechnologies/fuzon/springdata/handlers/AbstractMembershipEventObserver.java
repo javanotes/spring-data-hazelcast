@@ -1,6 +1,6 @@
 /* ============================================================================
 *
-* FILE: OutboundInterceptor.java
+* FILE: AbstractMembershipEventObserver.java
 *
 The MIT License (MIT)
 
@@ -26,11 +26,39 @@ SOFTWARE.
 *
 * ============================================================================
 */
-package com.uthtechnologies.fuzon.interceptor;
+package com.uthtechnologies.fuzon.springdata.handlers;
 
-import java.io.Serializable;
+import java.util.Observable;
 
-public interface OutboundInterceptor<V extends Serializable> {
+import com.hazelcast.core.MemberAttributeEvent;
+import com.hazelcast.core.MembershipEvent;
 
-  void feed(V item) throws Exception;
+public abstract class AbstractMembershipEventObserver
+    implements MembershipEventObserver {
+
+  @Override
+  public final void update(Observable arg0, Object arg1) {
+    
+    if(arg1 instanceof MembershipEvent)
+    {
+      
+      MembershipEvent me = (MembershipEvent) arg1;
+      switch(me.getEventType())
+      {
+        case MembershipEvent.MEMBER_ADDED:
+          handleMemberAdded(me.getMember());
+          break;
+        case MembershipEvent.MEMBER_REMOVED:
+          handleMemberRemoved(me.getMember());
+          break;
+        case MembershipEvent.MEMBER_ATTRIBUTE_CHANGED:
+          MemberAttributeEvent ma = (MemberAttributeEvent) arg1;
+          handleMemberModified(ma.getMember(), ma.getOperationType());
+          break;
+          default: break;
+      }
+    }
+    
+  }
+
 }

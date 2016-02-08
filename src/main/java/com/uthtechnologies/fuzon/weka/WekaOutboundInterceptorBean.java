@@ -1,6 +1,6 @@
 /* ============================================================================
 *
-* FILE: OutboundInterceptor.java
+* FILE: WekaOutboundInterceptorBean.java
 *
 The MIT License (MIT)
 
@@ -26,11 +26,34 @@ SOFTWARE.
 *
 * ============================================================================
 */
-package com.uthtechnologies.fuzon.interceptor;
+package com.uthtechnologies.fuzon.weka;
 
 import java.io.Serializable;
 
-public interface OutboundInterceptor<V extends Serializable> {
+import javax.annotation.PostConstruct;
 
-  void feed(V item) throws Exception;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import com.uthtechnologies.fuzon.interceptor.OutboundInterceptor;
+import com.uthtechnologies.fuzon.weka.impl.TrainModel;
+
+public class WekaOutboundInterceptorBean
+    implements OutboundInterceptor<Serializable> {
+
+  private static final Logger log = LoggerFactory.getLogger(WekaOutboundInterceptorBean.class);
+  @Autowired
+  private Regression classifier;
+  @PostConstruct
+  void init()
+  {
+    log.info("Weka outbound interceptor created with classifier ["+classifier+"]. ");
+  }
+  @Override
+  public void feed(Serializable item) throws Exception {
+    classifier.incrementModel((TrainModel) item);
+    
+  }
+
 }

@@ -1,6 +1,6 @@
 /* ============================================================================
 *
-* FILE: OutboundInterceptor.java
+* FILE: PartitionMigrationCallback.java
 *
 The MIT License (MIT)
 
@@ -26,11 +26,22 @@ SOFTWARE.
 *
 * ============================================================================
 */
-package com.uthtechnologies.fuzon.interceptor;
+package com.uthtechnologies.fuzon.springdata.handlers;
 
 import java.io.Serializable;
 
-public interface OutboundInterceptor<V extends Serializable> {
+import com.hazelcast.map.EntryProcessor;
+/**
+ * Partition migration callback on all entries of a given map
+ *
+ * @param <V>
+ */
+public interface PartitionMigrationCallback<V> extends EntryProcessor<Serializable, V>{
 
-  void feed(V item) throws Exception;
+  /**
+   * Gets the Map for which migrated elements will have a callback
+   * @return
+   */
+  String keyspace();
+  
 }

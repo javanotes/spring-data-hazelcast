@@ -1,0 +1,35 @@
+K 25
+svn:wc:ra_dav:version-url
+V 116
+/svn/repos/fmt_workspace/!svn/ver/2801/branches/fmt_phase_4/forecasting/src/com/ericsson/fmt/forecasting/engine/impl
+END
+WekaBestFitModel.java
+K 25
+svn:wc:ra_dav:version-url
+V 138
+/svn/repos/fmt_workspace/!svn/ver/2801/branches/fmt_phase_4/forecasting/src/com/ericsson/fmt/forecasting/engine/impl/WekaBestFitModel.java
+END
+WekaDataHandler.java
+K 25
+svn:wc:ra_dav:version-url
+V 137
+/svn/repos/fmt_workspace/!svn/ver/2801/branches/fmt_phase_4/forecasting/src/com/ericsson/fmt/forecasting/engine/impl/WekaDataHandler.java
+END
+WekaClassifierConfigReader.java
+K 25
+svn:wc:ra_dav:version-url
+V 148
+/svn/repos/fmt_workspace/!svn/ver/2860/branches/fmt_phase_4/forecasting/src/com/ericsson/fmt/forecasting/engine/impl/WekaClassifierConfigReader.java
+END
+FMTTSEvaluation.java
+K 25
+svn:wc:ra_dav:version-url
+V 137
+/svn/repos/fmt_workspace/!svn/ver/2801/branches/fmt_phase_4/forecasting/src/com/ericsson/fmt/forecasting/engine/impl/FMTTSEvaluation.java
+END
+WekaMLEngine.java
+K 25
+svn:wc:ra_dav:version-url
+V 134
+/svn/repos/fmt_workspace/!svn/ver/2860/branches/fmt_phase_4/forecasting/src/com/ericsson/fmt/forecasting/engine/impl/WekaMLEngine.java
+END

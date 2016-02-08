@@ -1,6 +1,6 @@
 /* ============================================================================
 *
-* FILE: OutboundInterceptor.java
+* FILE: WekaInterceptorBean.java
 *
 The MIT License (MIT)
 
@@ -26,11 +26,42 @@ SOFTWARE.
 *
 * ============================================================================
 */
-package com.uthtechnologies.fuzon.interceptor;
+package com.uthtechnologies.fuzon.weka;
 
 import java.io.Serializable;
 
-public interface OutboundInterceptor<V extends Serializable> {
+import javax.annotation.PostConstruct;
 
-  void feed(V item) throws Exception;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.uthtechnologies.fuzon.interceptor.AbstractInboundInterceptor;
+import com.uthtechnologies.fuzon.weka.impl.TrainModel;
+
+public class WekaInboundInterceptorBean extends AbstractInboundInterceptor<String, TrainModel> {
+
+  private static final Logger log = LoggerFactory.getLogger(WekaInboundInterceptorBean.class);
+      
+  @PostConstruct
+  void created() throws Exception
+  {
+    log.info("Ready to intercept for WEKA. Listening on IMAP::"+keyspace());
+    log.info("Downstream connector ["+getOutChannel()+"] ");
+  }
+  @Override
+  public String keyspace() {
+    return "WEKAMAP";
+  }
+
+  @Override
+  public TrainModel intercept(Serializable key, String _new, String _old) {
+    // TODO - Convert JSON to instancemodel
+    return new TrainModel();
+  }
+
+  
+
+  
+
+  
 }

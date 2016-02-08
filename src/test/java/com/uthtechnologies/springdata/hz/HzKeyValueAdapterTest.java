@@ -32,7 +32,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.util.ObjectUtils;
 
 import com.uthtechnologies.fuzon.Bootstrap;
-import com.uthtechnologies.springdata.keyval.HazelcastKeyValueAdapterBean;
+import com.uthtechnologies.fuzon.springdata.HazelcastKeyValueAdapterBean;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = Bootstrap.class)

@@ -1,0 +1,31 @@
+package com.ericsson.fmt.forecasting.utils;
+
+
+public class ForecastExecutionException extends Exception {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -8716355856144944258L;
+	
+	public ForecastExecutionException()
+    {
+		super();
+    }
+
+    public ForecastExecutionException(String message)
+    {
+        super(message);
+    }
+
+    public ForecastExecutionException(String message, Throwable cause)
+    {
+        super(message, cause);
+    }
+
+    public ForecastExecutionException(Throwable cause)
+    {
+        super(cause);
+    }
+
+}

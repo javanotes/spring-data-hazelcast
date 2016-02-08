@@ -1,0 +1,125 @@
+package com.ericsson.fmt.forecasting.engine.impl;
+
+import java.io.Serializable;
+
+import weka.classifiers.Classifier;
+import weka.core.Instances;
+
+public class WekaBestFitModel implements Serializable
+{
+	
+	
+	/**
+	 * 
+	 */
+	private static final long	serialVersionUID	= 5779222155938142365L;
+	@Override
+	public String toString()
+	{
+		return "WekaBestFitModel [trainedClassifier=" + trainedClassifier
+				+ ", meanAbsErr=" + meanAbsErr + ", rootMeanSqErr="
+				+ rootMeanSqErr + ", name=" + name + ", pctIncorrect="
+				+ pctIncorrect + ", folds=" + folds + "]";
+	}
+
+	private double iterationError;
+	private Classifier	trainedClassifier;
+	private double		meanAbsErr;
+	private double		rootMeanSqErr;
+	private transient Instances	trainingSet;
+	private String name;
+	private transient double [] results;
+	private double pctIncorrect;
+	private int folds = 0;
+	
+	public Classifier getTrainedClassifier()
+	{
+		return trainedClassifier;
+	}
+
+	public void setTrainedClassifier(Classifier trainedClassifier)
+	{
+		this.trainedClassifier = trainedClassifier;
+	}
+
+	public double getMeanAbsErr()
+	{
+		return meanAbsErr;
+	}
+
+	public void setMeanAbsErr(double meanAbsErr)
+	{
+		this.meanAbsErr = meanAbsErr;
+	}
+
+	public Instances getTrainingSet()
+	{
+		return trainingSet;
+	}
+
+	public void setTrainingSet(Instances trainingSet)
+	{
+		this.trainingSet = trainingSet;
+	}
+
+	
+	public String getName()
+	{
+		return name;
+	}
+
+	public void setName(String name)
+	{
+		this.name = name;
+	}
+
+	public double [] getResults()
+	{
+		return results;
+	}
+
+	public void setResults(double [] results)
+	{
+		this.results = results;
+	}
+
+	public double getPctIncorrect()
+	{
+		return pctIncorrect;
+	}
+
+	public void setPctIncorrect(double pctCorrect)
+	{
+		this.pctIncorrect = pctCorrect;
+	}
+
+	public int getFolds()
+	{
+		return folds;
+	}
+
+	public void setFolds(int folds)
+	{
+		this.folds = folds;
+	}
+
+	public double getRootMeanSqErr()
+	{
+		return rootMeanSqErr;
+	}
+
+	public void setRootMeanSqErr(double rootMeanSqErr)
+	{
+		this.rootMeanSqErr = rootMeanSqErr;
+	}
+
+	public double getIterationError()
+	{
+		return iterationError;
+	}
+
+	public void setIterationError(double iterationError)
+	{
+		this.iterationError = iterationError;
+	}
+}

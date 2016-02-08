@@ -40,7 +40,7 @@ import org.springframework.stereotype.Component;
 
 import com.hazelcast.core.EntryEvent;
 import com.uthtechnologies.fuzon.message.Event;
-import com.uthtechnologies.springdata.keyval.handlers.LocalPutMapEntryCallback;
+import com.uthtechnologies.fuzon.springdata.handlers.LocalPutMapEntryCallback;
 /**
  * 
  *
@@ -50,7 +50,7 @@ import com.uthtechnologies.springdata.keyval.handlers.LocalPutMapEntryCallback;
 @Component
 @Scope(scopeName = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public abstract class AbstractInboundInterceptor<V extends Serializable, T extends Serializable>
-    implements LocalPutMapEntryCallback<Event<V>>, InboundInterceptor<Serializable, Serializable> {
+    implements LocalPutMapEntryCallback<Event<V>>, InboundInterceptor<V, T> {
 
   private static final Logger log = LoggerFactory.getLogger(AbstractInboundInterceptor.class);
   

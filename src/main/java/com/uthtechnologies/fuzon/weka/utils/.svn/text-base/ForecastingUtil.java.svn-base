@@ -1,0 +1,267 @@
+package com.ericsson.fmt.forecasting.utils;
+
+import java.lang.reflect.Array;
+import java.lang.reflect.Field;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.Iterator;
+
+import net.sourceforge.openforecast.DataPoint;
+import net.sourceforge.openforecast.DataSet;
+import net.sourceforge.openforecast.Observation;
+
+import org.apache.commons.lang3.time.DateUtils;
+
+import weka.core.Attribute;
+import weka.core.Instance;
+import weka.core.Instances;
+import ch.lambdaj.Lambda;
+import ch.lambdaj.function.matcher.Predicate;
+
+import com.ericsson.fmt.commons.Constants;
+import com.ericsson.fmt.commons.PropertiesReader.ForecastEngineConfig;
+import com.ericsson.fmt.commons.proxy.ObjectGenerator;
+import com.thoughtworks.xstream.XStream;
+
+/**
+ * Utility class to convert to and from various data forms
+ * 
+ * @author esutdal
+ * 
+ */
+public class ForecastingUtil
+{
+
+	private ForecastingUtil()
+	{
+		
+	}
+
+	
+	public static void aliasXstreamSerialization(Object root, XStream xs)
+	{
+		xs.alias(root.getClass().getSimpleName(), root.getClass());
+		
+		for(Field f : root.getClass().getFields())
+		{
+			Class<?> c = f.getDeclaringClass();
+			
+			if(!c.isPrimitive())
+			{
+				if(c.isArray())
+				{
+					c = c.getComponentType();
+					f.setAccessible(true);
+					Object componentObj;
+					try
+					{
+						Object array = f.get(root);
+						if(Array.getLength(array) >= 1)
+						{
+							componentObj = Array.get(array, 0);
+						}
+						else
+						{
+							componentObj = ObjectGenerator.instantiate(c);
+						}
+						aliasXstreamSerialization(componentObj, xs);
+					}
+					catch (Exception e)
+					{
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					
+					
+				}
+				else
+				{
+					f.setAccessible(true);
+					try
+					{
+						aliasXstreamSerialization(f.get(root), xs);
+					}
+					catch (Exception e)
+					{
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+			}
+		}
+	}
+	
+	
+	public static double getNextDateAsDouble(double currentDateInDouble)
+	{
+		GregorianCalendar currentDate;
+		try
+		{
+			currentDate = new GregorianCalendar();
+			currentDate.setTimeInMillis((long) currentDateInDouble);
+			currentDate.add(Calendar.DATE, 1);
+			
+			return (double)currentDate.getTimeInMillis();
+		}
+		catch (Exception e)
+		{
+			throw new IllegalArgumentException(currentDateInDouble + " cannot be cast to a date");
+		}
+		
+	}
+	
+	public static int getDateDiffInDays(Date from, Date to)
+	{
+		if (from.after(to))
+		{
+			throw new IllegalArgumentException("from is after to!");
+		}
+		GregorianCalendar calFrom = new GregorianCalendar();
+		calFrom.setTime(from);
+		GregorianCalendar calTo = new GregorianCalendar();
+		calTo.setTime(to);
+		int offset = calTo.get(Calendar.YEAR) - calFrom.get(Calendar.YEAR);
+
+		return (365 * offset) + calTo.get(Calendar.DAY_OF_YEAR)
+				- calFrom.get(Calendar.DAY_OF_YEAR);
+
+	}
+
+	public static Date convertToExactDate(double dateDouble)
+	{
+		Date date = new Date(new Double(dateDouble).longValue());
+		DateUtils.setHours(date, 0);
+		DateUtils.setMilliseconds(date, 0);
+		DateUtils.setMinutes(date, 0);
+		DateUtils.setSeconds(date, 0);
+
+		return date;
+
+	}
+
+	public static Date getFormattedDate(String date)
+	{
+		if (date != null && !"".equals(date))
+		{
+			SimpleDateFormat dateFormatter = new SimpleDateFormat(
+					Constants.DATE_FORMAT);
+			try
+			{
+				return dateFormatter.parse(date);
+			}
+			catch (ParseException e)
+			{
+				return null;
+			}
+		}
+		return null;
+
+	}
+
+	/**
+	 * A right slide window. Performs array left shift
+	 * 
+	 * @param theArray
+	 * @param latest
+	 */
+	public static void rightSlide(double[] theArray, double latest)
+	{
+		if (theArray != null)
+		{
+			int i;
+			for (i = 0; i < theArray.length - 1; i++)
+			{
+				theArray[i] = theArray[i + 1];
+			}
+			theArray[i] = latest;
+		}
+	}
+
+	/**
+	 * Transforms weka instances to openforecast dataset
+	 * 
+	 * @param instances
+	 * @return
+	 */
+	public static DataSet convertWekaToOFDataset(Instances instances)
+	{
+		DataSet dataset = null;
+		if (instances != null)
+		{
+
+			Attribute data = instances
+					.attribute(Constants.TIME_SERIES_DATA_ATTRIB);
+
+			dataset = new DataSet();
+			dataset.setTimeVariable(Constants.TIME_SERIES_DATA_ATTRIB);
+			dataset.setPeriodsPerYear(ForecastEngineConfig
+					.getTimeSeriesHistorySize());
+			DataPoint dataPoint = null;
+
+			Iterator<Instance> iter = instances.iterator();
+			int count = 0;
+			while (iter.hasNext())
+			{
+				Instance instance = iter.next();
+				double dependent = instance.value(data);
+
+				dataPoint = new Observation(dependent);
+				dataPoint.setIndependentValue(
+						Constants.TIME_SERIES_DATA_ATTRIB, count++);
+				dataset.add(dataPoint);
+
+			}
+		}
+
+		return dataset;
+	}
+	
+	/**
+	 * 
+	 * @param collection
+	 * @param searchStr
+	 * @return
+	 */
+	public static boolean containsEqualsIgnorecase(Iterable<String> collection, final String searchStr)
+	{
+		return Lambda.exists(collection, new Predicate<String>()
+		{
+			@Override
+			public boolean apply(String arg0)
+			{
+				return searchStr.equalsIgnoreCase(arg0);
+			}
+		});
+		
+	}
+
+	public static void main(String... s)
+	{
+		// 5.679738E11
+		// 5.680602E11
+		/*Long d = new Double(5.680602E11).longValue();
+		System.out.println(new Date(d));
+
+		Map<Integer, String> m = new TreeMap<Integer, String>();
+		m.put(1, "me");
+		System.out.println(((SortedSet<Integer>) m.keySet()).last());
+		*/
+		SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
+		try
+		{
+			Date dt = sdf.parse("31-10-2013");
+			System.out.println(dt);
+			double next = getNextDateAsDouble(dt.getTime());
+			getNextDateAsDouble(next);
+		}
+		catch (ParseException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+}

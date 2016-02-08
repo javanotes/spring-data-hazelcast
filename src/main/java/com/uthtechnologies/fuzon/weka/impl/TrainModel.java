@@ -1,6 +1,6 @@
 /* ============================================================================
 *
-* FILE: OutboundInterceptor.java
+* FILE: InstanceModel.java
 *
 The MIT License (MIT)
 
@@ -26,11 +26,44 @@ SOFTWARE.
 *
 * ============================================================================
 */
-package com.uthtechnologies.fuzon.interceptor;
+package com.uthtechnologies.fuzon.weka.impl;
 
 import java.io.Serializable;
 
-public interface OutboundInterceptor<V extends Serializable> {
+import weka.core.Instance;
+/**
+ * Will hold the transformed JSON training instance
+ */
+public class TrainModel implements Serializable{
 
-  void feed(V item) throws Exception;
+  /**
+   * 
+   */
+  private static final long serialVersionUID = 1L;
+  private final boolean stop;
+
+  private String json;
+  public TrainModel(String instanceJson)
+  {
+    this();
+    json = instanceJson;
+  }
+  public TrainModel() {
+    this(false);
+  }
+
+  public TrainModel(boolean stop) {
+    super();
+    this.stop = stop;
+  }
+
+  public boolean isStop() {
+    return stop;
+  }
+
+  public Instance getAsInstance() {
+    // TODO - Transform to weka instance
+    return null;
+  }
+
 }

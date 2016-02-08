@@ -1,6 +1,6 @@
 /* ============================================================================
 *
-* FILE: OutboundInterceptor.java
+* FILE: WekaEvent.java
 *
 The MIT License (MIT)
 
@@ -26,11 +26,8 @@ SOFTWARE.
 *
 * ============================================================================
 */
-package com.uthtechnologies.fuzon.interceptor;
+package com.uthtechnologies.fuzon.message;
 
-import java.io.Serializable;
+public class WekaEvent extends Event<String> {
 
-public interface OutboundInterceptor<V extends Serializable> {
-
-  void feed(V item) throws Exception;
 }

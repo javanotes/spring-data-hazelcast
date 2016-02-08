@@ -40,7 +40,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.util.ObjectUtils;
 
 import com.uthtechnologies.fuzon.Bootstrap;
-import com.uthtechnologies.springdata.keyval.annotation.HzMapConfig;
+import com.uthtechnologies.fuzon.springdata.annotation.HzMapConfig;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = Bootstrap.class)

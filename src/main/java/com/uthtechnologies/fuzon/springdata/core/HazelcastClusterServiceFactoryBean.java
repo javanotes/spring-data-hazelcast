@@ -1,6 +1,6 @@
 /* ============================================================================
 *
-* FILE: DefaultInboundInterceptor.java
+* FILE: HazelcastClusterServiceFactoryBean.java
 *
 The MIT License (MIT)
 
@@ -26,40 +26,57 @@ SOFTWARE.
 *
 * ============================================================================
 */
-package com.uthtechnologies.fuzon.defaults;
-
-import java.io.Serializable;
+package com.uthtechnologies.fuzon.springdata.core;
 
 import javax.annotation.PostConstruct;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.BeanCreationException;
+import org.springframework.beans.factory.FactoryBean;
+import org.springframework.util.StringUtils;
 
-import com.uthtechnologies.fuzon.interceptor.AbstractInboundInterceptor;
-/**
- * No operation implementation
- */
-public class DefaultInboundInterceptorBean
-    extends AbstractInboundInterceptor<Serializable, Serializable> {
+public class HazelcastClusterServiceFactoryBean
+    implements FactoryBean<HazelcastClusterServiceBean> {
 
-  private static final Logger log = LoggerFactory.getLogger(DefaultInboundInterceptorBean.class);
-  
-  @Override
-  public String keyspace() {
-    // TODO The IMap on which to listen for inbound messages
-    return "";
+  public HazelcastClusterServiceFactoryBean()
+  {
+    
   }
+  private String entityBasePkg;
+  public String getEntityBasePkg() {
+    return entityBasePkg;
+  }
+  public void setEntityBasePkg(String entityBasePkg) {
+    this.entityBasePkg = entityBasePkg;
+  }
+  public String getConfigXml() {
+    return configXml;
+  }
+  public void setConfigXml(String configXml) {
+    this.configXml = configXml;
+  }
+
+  private String configXml;
 
   @PostConstruct
-  void created()
+  private void setUp()
   {
-    log.info("Ready to intercept. Listening on IMAP::"+keyspace());
+    if(StringUtils.isEmpty(entityBasePkg))
+      throw new BeanCreationException("'entityBasePkg' not specified in factory bean");
   }
   @Override
-  public Serializable intercept(Serializable key, Serializable _new,
-      Serializable _old) {
-    // TODO Auto-generated method stub
-    return _new;
+  public HazelcastClusterServiceBean getObject() throws Exception {
+    HazelcastClusterServiceBean bean = new HazelcastClusterServiceBean(configXml, entityBasePkg);
+    return bean;
+  }
+
+  @Override
+  public Class<?> getObjectType() {
+    return HazelcastClusterServiceBean.class;
+  }
+
+  @Override
+  public boolean isSingleton() {
+    return true;
   }
 
 }

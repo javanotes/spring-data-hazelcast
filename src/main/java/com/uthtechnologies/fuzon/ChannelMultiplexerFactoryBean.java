@@ -31,7 +31,7 @@ package com.uthtechnologies.fuzon;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.uthtechnologies.springdata.keyval.HazelcastKeyValueAdapterBean;
+import com.uthtechnologies.fuzon.springdata.HazelcastKeyValueAdapterBean;
 
 public class ChannelMultiplexerFactoryBean
     implements FactoryBean<ChannelMultiplexerBean> {

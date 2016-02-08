@@ -1,0 +1,10 @@
+package com.ericsson.fmt.forecasting.method;
+
+import com.ericsson.fmt.forecasting.Forecast;
+import com.ericsson.fmt.forecasting.utils.ForecastExecutionException;
+
+public interface Regression<T>
+{
+	public Forecast<T> execute() throws ForecastExecutionException;
+
+}
