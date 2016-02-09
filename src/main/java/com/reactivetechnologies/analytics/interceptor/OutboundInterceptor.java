@@ -33,4 +33,6 @@ import java.io.Serializable;
 public interface OutboundInterceptor<V extends Serializable> {
 
   void feed(V item) throws Exception;
+  String name();
+  Class<?> type();
 }

@@ -48,12 +48,20 @@ public class WekaOutboundInterceptorBean
   @PostConstruct
   void init()
   {
-    log.info("Weka outbound interceptor created with wrapper ["+classifier+"]. ");
+    log.debug("Weka outbound interceptor created with wrapper ["+classifier+"]. ");
   }
   @Override
   public void feed(Serializable item) throws Exception {
     classifier.incrementModel((TrainModel) item);
     
+  }
+  @Override
+  public String name() {
+    return "Weka-Submitter";
+  }
+  @Override
+  public Class<?> type() {
+    return TrainModel.class;
   }
 
 }

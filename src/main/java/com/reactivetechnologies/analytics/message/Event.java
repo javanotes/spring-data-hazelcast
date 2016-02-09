@@ -29,6 +29,7 @@ SOFTWARE.
 package com.reactivetechnologies.analytics.message;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.UUID;
 
 import com.esotericsoftware.kryo.Kryo;
@@ -40,12 +41,16 @@ import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 import com.hazelcast.nio.serialization.DataSerializable;
 /**
- * 
+ * The data structure for submitting generic messages to the Hazelcast cluster
  *
  * @param <T>
  */
-public class Event<T> implements DataSerializable{
+public class Event<T> implements DataSerializable, Serializable{
 
+  /**
+   * 
+   */
+  private static final long serialVersionUID = 1L;
   private long genTimestamp = -1;
   private long correlationId = 0;
   private String header = "";
@@ -63,6 +68,11 @@ public class Event<T> implements DataSerializable{
       }
     }).softReferences().build();
   }
+  
+  /**
+   * Gets the payload after deserializing
+   * @return
+   */
   @SuppressWarnings("unchecked")
   public T getPayload() {
     Kryo k = pool.borrow();
@@ -84,10 +94,17 @@ public class Event<T> implements DataSerializable{
     setCorrelationId(UUID.randomUUID().getMostSignificantBits());
     
   }
+  /**
+   * Timestamp and corrId needs to be set explicitly
+   */
   public Event()
   {
     
   }
+  /**
+   * Sets the payload in serialized form
+   * @param item
+   */
   public void setPayload(T item) {
     Kryo k = pool.borrow();
     try {

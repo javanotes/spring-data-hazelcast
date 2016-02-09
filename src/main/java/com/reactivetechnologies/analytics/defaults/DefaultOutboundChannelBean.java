@@ -30,8 +30,6 @@ package com.reactivetechnologies.analytics.defaults;
 
 import java.io.Serializable;
 
-import javax.annotation.PostConstruct;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,11 +40,7 @@ import com.reactivetechnologies.analytics.interceptor.OutboundInterceptor;
  */
 public class DefaultOutboundChannelBean extends AbstractOutboundChannel {
 
-  @PostConstruct
-  void created()
-  {
-    log.info("Ready to outflow. No. of feeders "+feeders.size());
-  }
+  
   private static final Logger log = LoggerFactory.getLogger(DefaultOutboundChannelBean.class);
   /**
    * Add a new outbound path to this channel
@@ -68,6 +62,14 @@ public class DefaultOutboundChannelBean extends AbstractOutboundChannel {
   public void onFeedTimeout(Serializable item, OutboundInterceptor<Serializable> feeder) {
     // TODO Feeder timeout handler
     log.warn("Item ["+item+"] faced timeout on feeding channel ["+feeder+"]. ");
+  }
+  @Override
+  public String name() {
+    return "default";
+  }
+  @Override
+  public Class<Serializable> type() {
+    return Serializable.class;
   }
 
 }

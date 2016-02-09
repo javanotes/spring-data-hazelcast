@@ -30,35 +30,37 @@ package com.reactivetechnologies.analytics.defaults;
 
 import java.io.Serializable;
 
-import javax.annotation.PostConstruct;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.reactivetechnologies.analytics.interceptor.AbstractInboundInterceptor;
+import com.reactivetechnologies.analytics.message.Event;
 /**
  * No operation implementation
  */
+@SuppressWarnings("rawtypes")
 public class DefaultInboundInterceptorBean
-    extends AbstractInboundInterceptor<Serializable, Serializable> {
+    extends AbstractInboundInterceptor<Event, Serializable> {
 
-  private static final Logger log = LoggerFactory.getLogger(DefaultInboundInterceptorBean.class);
-  
   @Override
   public String keyspace() {
-    // TODO The IMap on which to listen for inbound messages
-    return "";
+    return "default";
   }
 
-  @PostConstruct
-  void created()
-  {
-    log.info("Ready to intercept. Listening on IMAP::"+keyspace());
-  }
   @Override
-  public Serializable intercept(Serializable key, Serializable _new,
-      Serializable _old) {
-    // TODO Auto-generated method stub
+  public String name() {
+    return "default";
+  }
+
+  @Override
+  public Class<Event> inType() {
+    return Event.class;
+  }
+
+  @Override
+  public Class<Serializable> outType() {
+    return Serializable.class;
+  }
+
+  @Override
+  public Serializable intercept(Serializable key, Event _new, Event _old) {
     return _new;
   }
 

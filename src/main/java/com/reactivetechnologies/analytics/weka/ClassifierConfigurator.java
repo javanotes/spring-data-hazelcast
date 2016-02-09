@@ -28,6 +28,8 @@ SOFTWARE.
 */
 package com.reactivetechnologies.analytics.weka;
 
+import java.io.Serializable;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -37,6 +39,7 @@ import org.springframework.util.StringUtils;
 import com.reactivetechnologies.analytics.ChannelMultiplexerBean;
 import com.reactivetechnologies.analytics.ChannelMultiplexerFactoryBean;
 import com.reactivetechnologies.analytics.defaults.DefaultOutboundChannelBean;
+import com.reactivetechnologies.analytics.interceptor.AbstractInboundInterceptor;
 import com.reactivetechnologies.analytics.message.Event;
 import com.reactivetechnologies.analytics.weka.impl.IncrementalClassifierBean;
 
@@ -74,7 +77,7 @@ public class ClassifierConfigurator {
    * 
    */
   @Bean
-  public WekaInboundInterceptorBean inboundWeka()
+  public AbstractInboundInterceptor<?, ? extends Serializable> inboundWeka()
   {
     WekaInboundInterceptorBean in = new WekaInboundInterceptorBean();
     //link the outbound channel

@@ -39,7 +39,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.hazelcast.core.EntryEvent;
-import com.reactivetechnologies.analytics.message.Event;
+import com.hazelcast.nio.serialization.DataSerializable;
 import com.reactivetechnologies.analytics.springdata.handlers.LocalPutMapEntryCallback;
 /**
  * 
@@ -49,8 +49,8 @@ import com.reactivetechnologies.analytics.springdata.handlers.LocalPutMapEntryCa
  */
 @Component
 @Scope(scopeName = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-public abstract class AbstractInboundInterceptor<V extends Serializable, T extends Serializable>
-    implements LocalPutMapEntryCallback<Event<V>>, InboundInterceptor<V, T> {
+public abstract class AbstractInboundInterceptor<V extends DataSerializable, T extends Serializable>
+    implements LocalPutMapEntryCallback<V>, InboundInterceptor<V, T> {
 
   private static final Logger log = LoggerFactory.getLogger(AbstractInboundInterceptor.class);
   
@@ -67,19 +67,19 @@ public abstract class AbstractInboundInterceptor<V extends Serializable, T exten
   @PostConstruct
   protected void init()
   {
-    log.info("-- New Inbound channel created "+this+", linked to outbound channel "+outChannel);
+    log.info("-- New Inbound channel created ["+name()+" - IN: "+inType()+" OUT: "+outType()+"], linked to outbound channel ["+outChannel.name()+"]");
   }
   
   @Override
-  public void entryAdded(EntryEvent<Serializable, Event<V>> event) {
-    Serializable t = intercept(event.getKey(), event.getValue().getPayload(), event.getOldValue().getPayload());
+  public void entryAdded(EntryEvent<Serializable, V> event) {
+    Serializable t = intercept(event.getKey(), event.getValue(), event.getOldValue());
     outChannel.feed(t);
     
   }
 
   @Override
-  public void entryUpdated(EntryEvent<Serializable, Event<V>> event) {
-    Serializable t = intercept(event.getKey(), event.getValue().getPayload(), event.getOldValue().getPayload());
+  public void entryUpdated(EntryEvent<Serializable, V> event) {
+    Serializable t = intercept(event.getKey(), event.getValue(), event.getOldValue());
     outChannel.feed(t);
     
   }

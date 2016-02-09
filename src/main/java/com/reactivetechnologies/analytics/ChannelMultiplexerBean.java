@@ -64,6 +64,6 @@ public class ChannelMultiplexerBean {
   public <V> void createChannel()
   {
     hzAdaptor.addLocalKeyspaceListener(channel);
-    log.info("New channel linked on Hazelcast ==>> "+getChannel());
+    log.info("New channel flow created with inbound interceptor ["+getChannel().name()+"].");
   }
 }

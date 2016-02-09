@@ -118,7 +118,7 @@ public abstract class AbstractOutboundChannel implements OutboundInterceptor<Ser
         int n = 0;
         @Override
         public Thread newThread(Runnable arg0) {
-          Thread t = new Thread(arg0, "OutboundChannel-Thread-"+(n++));
+          Thread t = new Thread(arg0, "OutboundChannel-Worker-"+(n++));
           return t;
         }
       });
@@ -137,7 +137,14 @@ public abstract class AbstractOutboundChannel implements OutboundInterceptor<Ser
     
     }
     
-    log.info("-- New Outbound channel created -- "+this);
+    log.info("-- New Outbound channel created ["+name()+"]");
+    StringBuilder s = new StringBuilder(" { Feeders: ");
+    for(OutboundInterceptor<Serializable> out : feeders)
+    {
+      s.append("\n\t").append(out.name()).append(" - IN:").append(out.type());
+    }
+    s.append("\n}");
+    log.info("["+name()+"] Ready to outflow. No. of feeders "+feeders.size()+s);
   }
   /**
    * When a feeding execution throws an exception
