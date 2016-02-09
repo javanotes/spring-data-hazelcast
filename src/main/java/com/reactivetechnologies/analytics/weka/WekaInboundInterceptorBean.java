@@ -93,6 +93,7 @@ public class WekaInboundInterceptorBean extends AbstractInboundInterceptor<RestV
       log.debug(StringUtil.bytesToString(_new.getValue()));
       log.debug("-- End message --");
     }
+    log.warn("UNDER CONSTRUCTION. NO MODEL BEING PASSED");
     return new TrainModel();
   }
   @Override
