@@ -31,8 +31,8 @@ import org.springframework.data.util.CloseableIterator;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.util.ObjectUtils;
 
-import com.reactivetechnologies.analytics.Bootstrap;
-import com.reactivetechnologies.analytics.springdata.HazelcastKeyValueAdapterBean;
+import com.reactivetechnologies.data.Bootstrap;
+import com.reactivetechnologies.data.springdata.HazelcastKeyValueAdapterBean;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = Bootstrap.class)

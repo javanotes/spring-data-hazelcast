@@ -23,7 +23,7 @@ dependencies {
     //compile ('org.springframework.integration:spring-integration-core:4.2.4.RELEASE')
     compile ('com.esotericsoftware:kryo:3.0.3')
     compile('nz.ac.waikato.cms.weka:weka-stable:3.6.13')
-    compile("com.thoughtworks.xstream:xstream:1.4.8")
+    compile('com.google.code.gson:gson:2.5')
 }
 
 test {

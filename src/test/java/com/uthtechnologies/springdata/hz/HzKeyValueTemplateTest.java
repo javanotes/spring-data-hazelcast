@@ -39,8 +39,8 @@ import org.springframework.data.keyvalue.core.query.KeyValueQuery;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.util.ObjectUtils;
 
-import com.reactivetechnologies.analytics.Bootstrap;
-import com.reactivetechnologies.analytics.springdata.annotation.HzMapConfig;
+import com.reactivetechnologies.data.Bootstrap;
+import com.reactivetechnologies.data.springdata.annotation.HzMapConfig;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = Bootstrap.class)
