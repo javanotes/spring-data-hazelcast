@@ -38,7 +38,6 @@ import org.springframework.context.annotation.Configuration;
 import com.reactivetechnologies.platform.ChannelMultiplexerBean;
 import com.reactivetechnologies.platform.ChannelMultiplexerFactoryBean;
 import com.reactivetechnologies.platform.analytics.core.IncrementalClassifierBean;
-import com.reactivetechnologies.platform.analytics.core.RegressionModelFactoryBean;
 import com.reactivetechnologies.platform.analytics.mapper.DataMapperFactoryBean;
 import com.reactivetechnologies.platform.defaults.DefaultOutboundChannelBean;
 import com.reactivetechnologies.platform.interceptor.AbstractInboundInterceptor;
@@ -63,12 +62,7 @@ public class WekaConfigurator {
     c.setOptions(Utils.splitOptions(options));
     return new IncrementalClassifierBean(c, 1000);
   }
-  @Bean
-  public RegressionModelFactoryBean rModelFactoryBean()
-  {
-    return new RegressionModelFactoryBean();
-  }
-  
+    
   @Autowired
   ChannelMultiplexerFactoryBean muxFactory;
   

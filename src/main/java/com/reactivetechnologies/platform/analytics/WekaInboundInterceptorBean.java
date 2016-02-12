@@ -49,9 +49,6 @@ import com.reactivetechnologies.platform.interceptor.ChannelException;
 public class WekaInboundInterceptorBean extends AbstractInboundInterceptor<RestValue, TrainModel> {
 
   private static final Logger log = LoggerFactory.getLogger(WekaInboundInterceptorBean.class);
-    
-  @Autowired
-  private GsonWrapper xs;
   
   @PostConstruct
   void created() throws Exception
@@ -79,7 +76,7 @@ public class WekaInboundInterceptorBean extends AbstractInboundInterceptor<RestV
           "5.8,2.8,5.1,2.4,Iris-virginica"});
       
       log.debug("[" + name() + "] consuming Hazelcast event of type:\n"
-          + xs.getGsonInstance().toJson(event));
+          + GsonWrapper.get().toJson(event));
       log.debug("Corresponding ARFF generated:: \n"+event.toString());
     }
     
@@ -113,7 +110,7 @@ public class WekaInboundInterceptorBean extends AbstractInboundInterceptor<RestV
       log.debug("-- End message --");
     }
     try {
-      ArffJsonRequest jr = xs.getGsonInstance().fromJson(StringUtil.bytesToString(_new.getValue()), ArffJsonRequest.class);
+      ArffJsonRequest jr = GsonWrapper.get().fromJson(StringUtil.bytesToString(_new.getValue()), ArffJsonRequest.class);
       return mapper.mapStringToModel(jr);
     } catch (Exception e) {
       throw new ChannelException("Inbound interceptor ["+name()+"] ", e);

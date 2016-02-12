@@ -1,19 +1,29 @@
 package com.reactivetechnologies.platform.analytics.core;
 
 import java.io.IOException;
+import java.io.Serializable;
+import java.nio.charset.StandardCharsets;
 
-import com.google.gson.Gson;
+import org.springframework.util.StringUtils;
+
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 import com.hazelcast.nio.serialization.DataSerializable;
+import com.hazelcast.util.HashUtil;
 
 import weka.classifiers.Classifier;
 import weka.core.Instances;
+import weka.core.xml.XStream;
 
 
-public class RegressionModel implements DataSerializable
+public class RegressionModel implements DataSerializable,Serializable
 {
-	@Override
+	/**
+   * 
+   */
+  private static final long serialVersionUID = -7364621200107984642L;
+
+  @Override
 	public String toString()
 	{
 		return "WekaBestFitModel [trainedClassifier=" + trainedClassifier
@@ -22,22 +32,18 @@ public class RegressionModel implements DataSerializable
 				+ pctIncorrect + ", folds=" + folds + "]";
 	}
 	
-	RegressionModel(Gson gson) {
-    this.gson = gson;
-  }
-
-	
-	private Gson gson;
-	
 	public Classifier getTrainedClassifier()
 	{
 		return trainedClassifier;
 	}
 
+	private String classifierImpl;
 	public void setTrainedClassifier(Classifier trainedClassifier)
 	{
 		this.trainedClassifier = trainedClassifier;
+		classifierImpl = trainedClassifier.getClass().getName();
 	}
+	private long murmurHash;
 
 	/* (non-Javadoc)
    * @see com.ericsson.fmt.forecasting.engine.impl.RegressionModel#getMeanAbsErr()
@@ -135,17 +141,21 @@ public class RegressionModel implements DataSerializable
 	/* (non-Javadoc)
    * @see com.ericsson.fmt.forecasting.engine.impl.RegressionModel#writeClassifierAsXml()
    */
-	public String serializeClassifierAsJson()
+	public String serializeClassifierAsJson() throws Exception
 	{
-	  return gson.toJson(trainedClassifier);
+	  return XStream.serialize(trainedClassifier);
 	}
 	/* (non-Javadoc)
    * @see com.ericsson.fmt.forecasting.engine.impl.RegressionModel#readClassifierAsXml(java.lang.String)
    */
 	public Classifier deserializeClassifierFromJson(String xmlString) throws IOException
   {
-    try {
-      trainedClassifier = gson.fromJson(xmlString, Classifier.class);
+    try 
+    {
+      if (!StringUtils.isEmpty(classifierImpl)) {
+        Class.forName(classifierImpl);
+        trainedClassifier = (Classifier) XStream.deSerialize(xmlString);
+      }
       
     } catch (Exception e) {
       throw new IOException(e);
@@ -172,6 +182,7 @@ public class RegressionModel implements DataSerializable
       out.writeDouble(getPctIncorrect());
       out.writeInt(getFolds());
       out.writeUTF(getName());
+      out.writeUTF(classifierImpl);
       out.writeUTF(serializeClassifierAsJson());
     } catch (Exception e) {
       throw new IOException(e);
@@ -189,9 +200,25 @@ public class RegressionModel implements DataSerializable
       setPctIncorrect(in.readDouble());
       setFolds(in.readInt());
       setName(in.readUTF());
+      classifierImpl = in.readUTF();
       deserializeClassifierFromJson(in.readUTF());
     } catch (Exception e) {
       throw new IOException(e);
     }
+  }
+
+  public void generateId()
+  {
+    byte[] bytes = null;
+    try {
+      bytes = serializeClassifierAsJson().getBytes(StandardCharsets.UTF_8);
+      murmurHash = HashUtil.MurmurHash3_x64_64(bytes, 0, bytes.length);
+    } catch (Exception e) {
+      e.printStackTrace();
+      murmurHash = -1;
+    }
+  }
+  public Long getLongId() {
+    return murmurHash;
   }
 }

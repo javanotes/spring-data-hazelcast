@@ -32,7 +32,10 @@ import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.FactoryBean;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
+
+import com.reactivetechnologies.platform.datagrid.store.ModelPersistenceStore;
 
 public class HazelcastClusterServiceFactoryBean
     implements FactoryBean<HazelcastClusterServiceBean> {
@@ -63,9 +66,12 @@ public class HazelcastClusterServiceFactoryBean
     if(StringUtils.isEmpty(entityBasePkg))
       throw new BeanCreationException("'entityBasePkg' not specified in factory bean");
   }
+  @Autowired
+  private ModelPersistenceStore backingStore;
   @Override
   public HazelcastClusterServiceBean getObject() throws Exception {
     HazelcastClusterServiceBean bean = new HazelcastClusterServiceBean(configXml, entityBasePkg);
+    bean.setMapStoreImplementation(backingStore);
     return bean;
   }
 

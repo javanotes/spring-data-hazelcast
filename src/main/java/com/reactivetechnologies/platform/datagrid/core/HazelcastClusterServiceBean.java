@@ -31,6 +31,7 @@ SOFTWARE.
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Observable;
@@ -41,6 +42,7 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
 import org.slf4j.Logger;
@@ -56,9 +58,11 @@ import com.hazelcast.core.MembershipListener;
 import com.hazelcast.core.MigrationEvent;
 import com.hazelcast.core.MigrationListener;
 import com.hazelcast.map.listener.MapListener;
+import com.reactivetechnologies.platform.analytics.core.RegressionModel;
 import com.reactivetechnologies.platform.datagrid.handlers.MembershipEventObserver;
 import com.reactivetechnologies.platform.datagrid.handlers.MessagingChannel;
 import com.reactivetechnologies.platform.datagrid.handlers.PartitionMigrationCallback;
+import com.reactivetechnologies.platform.datagrid.store.ModelPersistenceStore;
 import com.reactivetechnologies.platform.datagrid.util.ResourceLoaderHelper;
 
 /**
@@ -83,7 +87,13 @@ public final class HazelcastClusterServiceBean {
 			return t;
 		}
 	});
-	
+		
+	@PostConstruct
+	void setMapStoreImplementation(ModelPersistenceStore backingStore)
+	{
+	  hzInstance.setMapStoreImplementation("WEKAMODELENS", backingStore, true);
+	  log.info("Set write through backing store for saving ensemble models..");
+	}
 	/**
 	 * Gets the underlying Hazelcast instance. Should be used with caution
 	 * @return
@@ -352,6 +362,18 @@ public final class HazelcastClusterServiceBean {
     }
     else
       hzInstance.getClusterSyncLock().unlock();
+  }
+  public void submitModelSnapshot(RegressionModel model) {
+    hzInstance.addToSet("WEKAMODELSNAP", model);
+    
+  }
+  public Iterator<RegressionModel> getModelSnapshotIterator() {
+    return hzInstance.getSetIterator("WEKAMODELSNAP");
+  }
+  public void persistEnsembleModel(RegressionModel ensemble) {
+    ensemble.generateId();//to generate a transient (but consistent) id
+    hzInstance.getMap("WEKAMODELENS").put(ensemble.getLongId(), ensemble);
+    
   }
 	
 }

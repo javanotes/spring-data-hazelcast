@@ -1,11 +1,18 @@
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:1.3.2.RELEASE")
+    }
+}
+
 apply plugin: 'java'
 apply plugin: 'eclipse'
-
-sourceCompatibility = 1.7
-targetCompatibility = 1.7
+apply plugin: 'spring-boot'
 
 jar {
-	baseName = 'spring-datagrid'
+	baseName = 'reactive-data'
 	version =  '0.1'
 }
 
@@ -14,16 +21,22 @@ repositories {
     maven { url "http://repo.spring.io/libs-snapshot" }
 }
 
+sourceCompatibility = 1.7
+targetCompatibility = 1.7
+
 dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.+'
     testCompile('org.springframework:spring-test:4.2.4.RELEASE')
     compile('org.springframework.data:spring-data-keyvalue:0.1.0.BUILD-SNAPSHOT')
     compile('com.hazelcast:hazelcast:3.5.4')
-    compile ('org.springframework.boot:spring-boot-starter:1.3.2.RELEASE')
+    compile ('org.springframework.boot:spring-boot-starter')
+    compile("org.springframework:spring-jdbc")
     //compile ('org.springframework.integration:spring-integration-core:4.2.4.RELEASE')
     compile ('com.esotericsoftware:kryo:3.0.3')
     compile('nz.ac.waikato.cms.weka:weka-stable:3.6.13')
     compile('com.google.code.gson:gson:2.5')
+    compile("mysql:mysql-connector-java:5.1.36")
+    compile("com.thoughtworks.xstream:xstream:1.4.8")
 }
 
 test {

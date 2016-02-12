@@ -31,6 +31,7 @@ SOFTWARE.
 import java.io.FileNotFoundException;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -44,6 +45,8 @@ import com.hazelcast.config.EvictionPolicy;
 import com.hazelcast.config.FileSystemXmlConfig;
 import com.hazelcast.config.InMemoryFormat;
 import com.hazelcast.config.MapConfig;
+import com.hazelcast.config.MapStoreConfig;
+import com.hazelcast.config.MapStoreConfig.InitialLoadMode;
 import com.hazelcast.config.MaxSizeConfig;
 import com.hazelcast.config.MaxSizeConfig.MaxSizePolicy;
 import com.hazelcast.core.Hazelcast;
@@ -60,6 +63,7 @@ import com.hazelcast.core.Message;
 import com.hazelcast.core.MessageListener;
 import com.hazelcast.core.MigrationListener;
 import com.hazelcast.map.listener.MapListener;
+import com.reactivetechnologies.platform.analytics.core.RegressionModel;
 import com.reactivetechnologies.platform.datagrid.annotation.HzMapConfig;
 import com.reactivetechnologies.platform.datagrid.handlers.MessagingChannel;
 import com.reactivetechnologies.platform.datagrid.util.EntityFinder;
@@ -144,6 +148,26 @@ class HazelcastInstanceProxy {
 	}
 	/**
 	 * 
+	 * @param map
+	 * @param backingStore
+	 * @param writeThrough
+	 */
+	public void setMapStoreImplementation(String map, Object backingStore, boolean writeThrough)
+	{
+	  MapStoreConfig mStoreCfg = hazelcast.getConfig().getMapConfig(map).getMapStoreConfig();
+	  if(mStoreCfg == null)
+	  {
+	    mStoreCfg = new MapStoreConfig();
+	  }
+	  mStoreCfg.setImplementation(backingStore);
+	  mStoreCfg.setEnabled(true);
+	  mStoreCfg.setWriteDelaySeconds(writeThrough ? 0 : 5);
+	  mStoreCfg.setInitialLoadMode(InitialLoadMode.LAZY);
+	  
+	  hazelcast.getConfig().getMapConfig(map).setMapStoreConfig(mStoreCfg);
+	}
+	/**
+	 * 
 	 * @throws FileNotFoundException
 	 * @throws ConfigurationException 
 	 */
@@ -162,6 +186,8 @@ class HazelcastInstanceProxy {
     hzConfig.setProperty("hazelcast.shutdownhook.enabled", "false");
     hazelcast = Hazelcast.getOrCreateHazelcastInstance(hzConfig);
     Set<Member> members = hazelcast.getCluster().getMembers();
+    
+    //
     
     int memberIdCnt = 0;
     for(Member m : members)
@@ -347,5 +373,17 @@ class HazelcastInstanceProxy {
   void publish(Object message, String topic) {
     hazelcast.getTopic(topic).publish(message);
     
+  }
+
+
+  public boolean addToSet(String string, RegressionModel model) {
+    return hazelcast.getSet(string).add(model);
+    
+  }
+
+
+  @SuppressWarnings("unchecked")
+  public <E> Iterator<E> getSetIterator(String string) {
+    return (Iterator<E>) hazelcast.getSet(string).iterator();
   }
 }

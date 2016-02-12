@@ -41,33 +41,4 @@ public class XmlConfigUtil
 		return input;
 	}
 
-	
-	public static void main(String[] args)
-	{
-
-		double d = 12.3;
-		System.out.println(d == Double.NaN);
-		/*String configXml = "./config/cph-regression.xml";
-		String configXsd = "./config/cph-regression.xsd";
-		//List<CPHFunctionSet> cphFunctionSetList = null;
-
-		try
-		{
-			getRegressionFunctionSetMeta(configXml, configXsd);
-		}
-		catch (FMTMetaParseException e)
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}*/
-
-		/*if (cphFunctionSetList != null)
-		{
-			for (CPHFunctionSet set : cphFunctionSetList)
-			{
-				System.out.println(set);
-			}
-		}*/
-
-	}
 }

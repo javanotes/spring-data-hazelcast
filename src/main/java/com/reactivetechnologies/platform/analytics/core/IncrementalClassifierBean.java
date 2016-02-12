@@ -42,7 +42,6 @@ import javax.annotation.PreDestroy;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import com.reactivetechnologies.platform.analytics.Regression;
 
@@ -228,11 +227,10 @@ public class IncrementalClassifierBean extends Classifier implements UpdateableC
       throw new TimeoutException("Unable to offer model even after waiting for 5 secs");
   }
 
-  @Autowired
-  private RegressionModelFactoryBean factory;
+  
   @Override
   public RegressionModel generateModelSnapshot() {
-    RegressionModel m = factory.getObject();
+    RegressionModel m = new RegressionModel();
     m.setTrainedClassifier(clazzifier);
     return m;
   }
@@ -248,7 +246,7 @@ public class IncrementalClassifierBean extends Classifier implements UpdateableC
       classifiers[i++] = model.getTrainedClassifier();
     }
     blend.setClassifiers(classifiers);
-    RegressionModel m = factory.getObject();
+    RegressionModel m = new RegressionModel();
     m.setTrainedClassifier(blend);
     return m;
   }

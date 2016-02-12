@@ -28,22 +28,39 @@ SOFTWARE.
 */
 package com.reactivetechnologies.platform.analytics.utils;
 
-import org.springframework.stereotype.Component;
-
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-@Component
+
 public class GsonWrapper {
 
   private final Gson gsonInstance;
 
-  public GsonWrapper() {
+  private GsonWrapper() {
     super();
-    this.gsonInstance = new GsonBuilder().setPrettyPrinting().create();
+    this.gsonInstance = new GsonBuilder()
+        .setPrettyPrinting()
+        .create();
   }
 
-  public Gson getGsonInstance() {
-    return gsonInstance;
+  private static GsonWrapper singleton;
+  /**
+   * 
+   * @return
+   */
+  public static Gson get()
+  {
+    if(singleton == null)
+    {
+      synchronized (GsonWrapper.class) {
+        if(singleton == null)
+        {
+          singleton = new GsonWrapper();
+        }
+      }
+    }
+    
+    return singleton.gsonInstance;
   }
+  
 }

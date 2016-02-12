@@ -28,7 +28,11 @@ SOFTWARE.
 */
 package com.reactivetechnologies.platform.analytics;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.annotation.PostConstruct;
@@ -61,21 +65,41 @@ public class WekaMessagingChannel implements MessagingChannel<Byte> {
   @Scheduled(fixedDelay = 5000, initialDelay = 5000)
   public void ensembleModelTask()
   {
-    log.info("-- Ensemble model task starting --");
+    log.info("[ensembleModelTask] task starting..");
     try {
-      boolean done = tryMemberSnapshot();
+      boolean done = tryMemberSnapshot(10, TimeUnit.MINUTES);
       if(done)
       {
         ensembleModels();
       }
+      else
+      {
+        log.info("[ensembleModelTask] task ignored.. ");
+      }
     } catch (InterruptedException e) {
       Thread.currentThread().interrupt();
       log.debug("", e);
+    } catch (TimeoutException e) {
+      log.warn("[ensembleModelTask] task failed. Generated model may be inconsistent", e);
     }
   }
   
   private void ensembleModels() {
-    log.info("Ensembling models generated.. ");
+    List<RegressionModel> models = new ArrayList<>();
+    for(Iterator<RegressionModel> iterModel = hzService.getModelSnapshotIterator(); iterModel.hasNext();)
+    {
+      RegressionModel model = iterModel.next();
+      models.add(model);
+    }
+    if(!models.isEmpty())
+    {
+      log.info("[ensembleModelTask] Saving model generated.. ");
+      RegressionModel ensemble = classifierBean.ensembleModels(models);
+      log.debug(ensemble.getTrainedClassifier()+"");
+      hzService.persistEnsembleModel(ensemble);
+      
+    }
+    
     
   }
 
@@ -120,6 +144,7 @@ public class WekaMessagingChannel implements MessagingChannel<Byte> {
     RegressionModel model = classifierBean.generateModelSnapshot();
     log.debug("Dumping model:: "+model.getTrainedClassifier());
     //TODO: model.serializeClassifierAsJson();
+    hzService.submitModelSnapshot(model);
     sendMessage(DUMP_MODEL_RES);
   }
   @Override
@@ -139,21 +164,23 @@ public class WekaMessagingChannel implements MessagingChannel<Byte> {
    * @param unit
    * @return
    * @throws InterruptedException
+   * @throws TimeoutException 
    */
-  public boolean tryMemberSnapshot(long duration, TimeUnit unit) throws InterruptedException
+  public boolean tryMemberSnapshot(long duration, TimeUnit unit) throws InterruptedException, TimeoutException
   {
     boolean snapshotDone = false;
     boolean locked = hzService.acquireLock(TimeUnit.SECONDS, 10);
-    if(locked)
+    try
     {
-      try
-      {
+      if (locked) {
         snapshotDone = signalAndAwait(duration, unit);
+        if(!snapshotDone)
+          throw new TimeoutException("Operation timed out in ["+duration+" "+unit+"] before getting response from all members");
       }
-      finally
-      {
-        hzService.releaseLock(true);
-      }
+    }
+    finally
+    {
+      hzService.releaseLock(true);
     }
     
     return snapshotDone;
@@ -190,8 +217,9 @@ public class WekaMessagingChannel implements MessagingChannel<Byte> {
    * Request a dump of classifier models from all cluster members
    * @return
    * @throws InterruptedException
+   * @throws TimeoutException 
    */
-  public boolean tryMemberSnapshot() throws InterruptedException {
+  public boolean tryMemberSnapshot() throws InterruptedException, TimeoutException {
     return tryMemberSnapshot(Long.MAX_VALUE, TimeUnit.MILLISECONDS);
     
   }

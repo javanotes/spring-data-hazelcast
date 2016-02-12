@@ -29,11 +29,9 @@ SOFTWARE.
 package com.reactivetechnologies.platform.datagrid;
 
 import java.io.Serializable;
-import java.util.Iterator;
 import java.util.Map.Entry;
 
 import org.springframework.data.keyvalue.core.AbstractKeyValueAdapter;
-import org.springframework.data.keyvalue.core.ForwardingCloseableIterator;
 import org.springframework.data.util.CloseableIterator;
 import org.springframework.util.Assert;
 
@@ -173,16 +171,21 @@ public class HazelcastKeyValueAdapterBean extends AbstractKeyValueAdapter {
     return hz.getMap(keyspace.toString()).values();
   }
 
-  
-  @SuppressWarnings("unchecked")
+  /**
+   * @deprecated Not implemented
+   * @throws UnsupportedOperationException
+   */
   @Override
   public CloseableIterator<Entry<Serializable, Object>> entries(
       Serializable keyspace) {
-    if(!hz.isStarted())
+    
+    throw new UnsupportedOperationException("Not implemented. Reason: Gradle compileJava failing on using CloseableIterator");
+    
+    /*if(!hz.isStarted())
       throw new IllegalStateException("Hazelcast service not started!");
     Assert.notNull(keyspace, "Cannot iterate entries for null collection.");
     return new ForwardingCloseableIterator<Entry<Serializable, Object>>((Iterator<? extends Entry<Serializable, Object>>) 
-        hz.getMap(keyspace.toString()).entrySet().iterator());
+        hz.getMap(keyspace.toString()).entrySet().iterator());*/
   }
 
   @Override

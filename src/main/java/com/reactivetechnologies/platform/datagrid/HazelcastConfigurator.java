@@ -28,15 +28,23 @@ SOFTWARE.
 */
 package com.reactivetechnologies.platform.datagrid;
 
+import javax.sql.DataSource;
+
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.data.keyvalue.core.KeyValueTemplate;
+import org.springframework.data.repository.CrudRepository;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
+import com.reactivetechnologies.platform.analytics.core.RegressionModel;
 import com.reactivetechnologies.platform.datagrid.core.HazelcastClusterServiceFactoryBean;
+import com.reactivetechnologies.platform.datagrid.store.ModelJdbcRepository;
 
 @Configuration
 public class HazelcastConfigurator {
@@ -92,5 +100,22 @@ public class HazelcastConfigurator {
     KeyValueTemplate kv = new KeyValueTemplate(hzKeyValueAdaptorJoinImmediate());
     return kv;
     
+  }
+  @ConfigurationProperties(prefix = "spring.datasource")
+  @Bean
+  public DataSource unpooled()
+  {
+    return new DriverManagerDataSource();
+  }
+  @Bean
+  public JdbcTemplate jdbcTemplateUnpooled()
+  {
+    JdbcTemplate tmpl = new JdbcTemplate(unpooled());
+    return tmpl;
+  }
+  @Bean
+  public CrudRepository<RegressionModel, Long> repository()
+  {
+    return new ModelJdbcRepository();
   }
 }
